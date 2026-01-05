@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "434440546796",
+    "project_id": "zamir-music-app",
+    "storage_bucket": "zamir-music-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:434440546796:android:017d1f69955029790238c9",
+        "android_client_info": {
+          "package_name": "com.example.zamir"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEPfdRblPDcAJ3utElaQKDBFoLkgFsuo8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

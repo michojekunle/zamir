@@ -25,9 +25,9 @@ class SettingsScreen extends StatelessWidget {
         children: [
           // Profile Section
           _ProfileCard(
-            name: 'App Name',
-            email: authVM.currentUser?.email ?? 'user@zamir.com',
-            imageUrl: null,
+            name: authVM.displayName,
+            email: authVM.email,
+            imageUrl: authVM.photoUrl,
             isDark: isDark,
           ),
           const SizedBox(height: 24),
@@ -120,7 +120,7 @@ class SettingsScreen extends StatelessWidget {
             icon: Icons.person_outline,
             iconColor: Theme.of(context).colorScheme.primary,
             title: 'Email/Phone',
-            subtitle: authVM.currentUser?.email ?? 'Not set',
+            subtitle: authVM.email.isNotEmpty ? authVM.email : 'Not set',
             onTap: () {},
           ),
           const SizedBox(height: 8),

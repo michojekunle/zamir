@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../view_models/onboarding_view_model.dart';
-import '../home/home_screen.dart';
+import 'welcome_complete_screen.dart';
 
 class FocusJourneyScreen extends StatelessWidget {
   const FocusJourneyScreen({super.key});
@@ -26,10 +26,7 @@ class FocusJourneyScreen extends StatelessWidget {
               const SizedBox(height: 20),
               const Text(
                 'Focus your journey',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               Text(
@@ -65,7 +62,7 @@ class FocusJourneyScreen extends StatelessWidget {
                       ? () {
                           Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
-                              builder: (_) => const HomeScreen(),
+                              builder: (_) => const WelcomeCompleteScreen(),
                             ),
                             (route) => false,
                           );
@@ -73,10 +70,7 @@ class FocusJourneyScreen extends StatelessWidget {
                       : null,
                   child: const Text(
                     'Start Listening',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -86,7 +80,7 @@ class FocusJourneyScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
-                        builder: (_) => const HomeScreen(),
+                        builder: (_) => const WelcomeCompleteScreen(),
                       ),
                       (route) => false,
                     );
@@ -117,7 +111,7 @@ class _ThemeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -139,8 +133,8 @@ class _ThemeCard extends StatelessWidget {
             color: isSelected
                 ? Theme.of(context).colorScheme.primary
                 : (isDark
-                    ? Theme.of(context).colorScheme.outline.withOpacity(0.3)
-                    : Colors.grey.shade300),
+                      ? Theme.of(context).colorScheme.outline.withOpacity(0.3)
+                      : Colors.grey.shade300),
             width: 1.5,
           ),
         ),
