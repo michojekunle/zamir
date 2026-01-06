@@ -5,8 +5,8 @@ import '../services/auth_service.dart';
 import '../services/user_service.dart';
 
 class AuthViewModel extends ChangeNotifier {
-  final AuthService _authService = AuthService();
-  final UserService _userService = UserService();
+  final AuthService _authService;
+  final UserService _userService;
 
   // Auth state
   firebase_auth.User? _firebaseUser;
@@ -31,7 +31,9 @@ class AuthViewModel extends ChangeNotifier {
   String? get handle => _userProfile?.handle;
   String? get photoUrl => _firebaseUser?.photoURL ?? _userProfile?.profileImage;
 
-  AuthViewModel() {
+  AuthViewModel({AuthService? authService, UserService? userService})
+    : _authService = authService ?? AuthService(),
+      _userService = userService ?? UserService() {
     _init();
   }
 

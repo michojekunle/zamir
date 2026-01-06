@@ -8,9 +8,16 @@ class SunoService {
   static const String _baseUrl = 'https://api.sunoapi.org/api/v1';
   String? _apiKey;
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore;
+  final http.Client _client;
 
-  SunoService({String? apiKey}) : _apiKey = apiKey;
+  SunoService({
+    String? apiKey,
+    FirebaseFirestore? firestore,
+    http.Client? client,
+  }) : _apiKey = apiKey,
+       _firestore = firestore ?? FirebaseFirestore.instance,
+       _client = client ?? http.Client();
 
   void setApiKey(String key) {
     _apiKey = key;
@@ -32,7 +39,7 @@ class SunoService {
       final prompt = _buildPrompt(scripture, verse, mood, style);
 
       // Start the generation
-      final response = await http.post(
+      final response = await _client.post(
         Uri.parse('$_baseUrl/generate'),
         headers: {
           'Content-Type': 'application/json',
@@ -72,7 +79,7 @@ class SunoService {
     }
 
     try {
-      final response = await http.get(
+      final response = await _client.get(
         Uri.parse('$_baseUrl/generations/$taskId'),
         headers: {'Authorization': 'Bearer $_apiKey'},
       );

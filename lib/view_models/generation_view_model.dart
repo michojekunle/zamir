@@ -4,8 +4,12 @@ import '../services/suno_service.dart';
 import '../services/user_service.dart';
 
 class GenerationViewModel extends ChangeNotifier {
-  final SunoService _sunoService = SunoService();
-  final UserService _userService = UserService();
+  final SunoService _sunoService;
+  final UserService _userService;
+
+  GenerationViewModel({SunoService? sunoService, UserService? userService})
+    : _sunoService = sunoService ?? SunoService(),
+      _userService = userService ?? UserService();
 
   // Generation state
   GenerationState _state = GenerationState.idle;
