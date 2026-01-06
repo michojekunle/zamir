@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'intro_curated_library_screen.dart';
+import '../auth/sign_in_screen.dart';
 
 class IntroTransformScriptureScreen extends StatelessWidget {
   const IntroTransformScriptureScreen({super.key});
@@ -21,9 +22,7 @@ class IntroTransformScriptureScreen extends StatelessWidget {
                   onPressed: () {
                     // Skip to sign in
                     Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (_) => const SignInScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const SignInScreen()),
                     );
                   },
                   child: Text(
@@ -96,9 +95,9 @@ class IntroTransformScriptureScreen extends StatelessWidget {
               Text(
                 'Experience the power of God\'s word\nthrough AI-generated melodies\ntailored just for your spirit.',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      height: 1.5,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(height: 1.5),
               ),
               const Spacer(),
               // Progress indicator
@@ -118,10 +117,9 @@ class IntroTransformScriptureScreen extends StatelessWidget {
                     width: 8,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -130,10 +128,9 @@ class IntroTransformScriptureScreen extends StatelessWidget {
                     width: 8,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -172,18 +169,6 @@ class IntroTransformScriptureScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-// Placeholder for SignInScreen import
-class SignInScreen extends StatelessWidget {
-  const SignInScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Text('Sign In Screen')),
     );
   }
 }

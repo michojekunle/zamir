@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'intro_personalization_screen.dart';
-import 'intro_transform_scripture_screen.dart';
+
+import '../auth/sign_in_screen.dart';
 
 class IntroCuratedLibraryScreen extends StatelessWidget {
   const IntroCuratedLibraryScreen({super.key});
@@ -21,9 +22,7 @@ class IntroCuratedLibraryScreen extends StatelessWidget {
                 child: TextButton(
                   onPressed: () {
                     Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (_) => const SignInScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const SignInScreen()),
                     );
                   },
                   child: Text(
@@ -114,9 +113,9 @@ class IntroCuratedLibraryScreen extends StatelessWidget {
               Text(
                 'Hand-picked, AI-crafted\ncollections inspired by scripture and\nyour every mood',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      height: 1.5,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(height: 1.5),
               ),
               const Spacer(),
               // Progress indicator
@@ -127,10 +126,9 @@ class IntroCuratedLibraryScreen extends StatelessWidget {
                     width: 8,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -148,10 +146,9 @@ class IntroCuratedLibraryScreen extends StatelessWidget {
                     width: 8,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -214,10 +211,7 @@ class _PlaylistCard extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            color,
-            color.withOpacity(0.6),
-          ],
+          colors: [color, color.withOpacity(0.6)],
         ),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
@@ -229,11 +223,7 @@ class _PlaylistCard extends StatelessWidget {
         ],
       ),
       child: Center(
-        child: Icon(
-          Icons.music_note,
-          color: Colors.white,
-          size: 32,
-        ),
+        child: Icon(Icons.music_note, color: Colors.white, size: 32),
       ),
     );
   }
