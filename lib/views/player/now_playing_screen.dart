@@ -2,13 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../view_models/music_view_model.dart';
 
-class NowPlayingScreen extends StatelessWidget {
+class NowPlayingScreen extends StatefulWidget {
   const NowPlayingScreen({super.key});
+
+  @override
+  State<NowPlayingScreen> createState() => _NowPlayingScreenState();
+}
+
+class _NowPlayingScreenState extends State<NowPlayingScreen> {
+  // Placeholder state for UI
+  double _sliderValue = 0.3;
 
   @override
   Widget build(BuildContext context) {
     final musicVM = context.watch<MusicViewModel>();
-    final song = musicVM.currentSong;
+    // Use a placeholder song if none selected for UI testing
+    final song =
+        musicVM.currentSong ??
+        (musicVM.sampleSongs.isNotEmpty ? musicVM.sampleSongs.first : null);
 
     if (song == null) {
       return Scaffold(
@@ -23,12 +34,26 @@ class NowPlayingScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.keyboard_arrow_down_rounded),
           onPressed: () => Navigator.of(context).pop(),
+          color: Theme.of(context).textTheme.bodyLarge?.color,
         ),
-        title: Text(
-          'Now Playing',
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        title: Column(
+          children: [
+            Text(
+              'NOW PLAYING',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                letterSpacing: 1.5,
+                color: Theme.of(context).disabledColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Bible Verse AI',
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -37,218 +62,243 @@ class NowPlayingScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.more_horiz_rounded),
             onPressed: () {},
+            color: Theme.of(context).textTheme.bodyLarge?.color,
           ),
         ],
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Column(
-            children: [
-              const Spacer(),
-              // Album Art
-              Container(
-                width: 280,
-                height: 280,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                      Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+              child: AspectRatio(
+                aspectRatio: 1, // Square
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(40),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 30,
+                        offset: const Offset(0, 15),
+                      ),
                     ],
+                    image: const DecorationImage(
+                      image: AssetImage(
+                        'assets/images/album_art_placeholder.png',
+                      ), // Need generic asset or gradient
+                      fit: BoxFit.cover,
+                    ),
+                    gradient: LinearGradient(
+                      colors: [Colors.blueGrey.shade800, Colors.black],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
-                  borderRadius: BorderRadius.circular(40),
-                  boxShadow: [
-                    BoxShadow(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(40),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFF6C63FF).withOpacity(0.3),
+                            const Color(0xFF2EC4B6).withOpacity(0.1),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.grain,
+                          size: 100,
+                          color: Colors.white.withOpacity(0.2),
+                        ), // Placeholder visual
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // Song Info
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                  Text(
+                    song.title,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Acoustic Folk Style', // Placeholder style or get from song
+                    style: TextStyle(
+                      color: const Color(0xFF4299E1), // Blue/Link color
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const Spacer(),
+
+            // Lyrics / Verse
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                children: [
+                  Text(
+                    song.verse, // Using 'verse' content as the subtitle text
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Theme.of(
                         context,
-                      ).colorScheme.primary.withOpacity(0.15),
-                      blurRadius: 30,
-                      offset: const Offset(0, 15),
+                      ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                      fontWeight: FontWeight.w500,
                     ),
-                  ],
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.music_note_rounded,
-                    size: 120,
-                    color: Theme.of(context).colorScheme.primary,
+                    textAlign: TextAlign.center,
                   ),
-                ),
-              ),
-              const Spacer(),
-              // Song Info
-              Text(
-                song.title,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                song.scripture,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.color?.withOpacity(0.6),
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardTheme.color,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).shadowColor.withOpacity(0.04),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
+                  const SizedBox(height: 12),
+                  Text(
+                    song.scripture,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      height: 1.3,
                     ),
-                  ],
-                ),
-                child: Text(
-                  song.verse,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(height: 1.5),
-                  textAlign: TextAlign.center,
-                ),
+                    textAlign: TextAlign.center,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'He leads me beside quiet waters', // Hardcoded secondary line from mockup or use data
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).disabledColor,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-              const Spacer(),
-              // Progress Bar
-              Column(
+            ),
+
+            const Spacer(),
+
+            // Controls
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Column(
                 children: [
+                  // Slider
                   SliderTheme(
                     data: SliderTheme.of(context).copyWith(
-                      trackHeight: 4,
-                      activeTrackColor: Theme.of(context).colorScheme.primary,
+                      activeTrackColor: const Color(0xFF2F80ED),
                       inactiveTrackColor: Theme.of(
                         context,
-                      ).colorScheme.primary.withOpacity(0.1),
-                      thumbColor: Theme.of(context).colorScheme.primary,
+                      ).dividerColor.withOpacity(0.2),
+                      thumbColor: Colors
+                          .transparent, // Mockup often hides thumb or makes it small
+                      overlayShape: SliderComponentShape.noOverlay,
+                      trackHeight: 4,
                       thumbShape: const RoundSliderThumbShape(
-                        enabledThumbRadius: 8,
-                      ),
-                      overlayColor: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.1),
-                      overlayShape: const RoundSliderOverlayShape(
-                        overlayRadius: 16,
-                      ),
-                      trackShape: const RoundedRectSliderTrackShape(),
+                        enabledThumbRadius: 0,
+                      ), // Hiding thumb for cleaner look
                     ),
-                    child: Slider(value: 0.3, onChanged: (value) {}),
+                    child: Slider(
+                      value: _sliderValue,
+                      onChanged: (val) {
+                        setState(() {
+                          _sliderValue = val;
+                        });
+                      },
+                    ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '1:23',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).disabledColor,
-                              ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '1:12',
+                        style: TextStyle(
+                          color: Theme.of(context).disabledColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
                         ),
-                        Text(
-                          '3:45',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).disabledColor,
-                              ),
+                      ),
+                      Text(
+                        '3:45',
+                        style: TextStyle(
+                          color: Theme.of(context).disabledColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.shuffle_rounded),
+                        color: Theme.of(context).disabledColor,
+                        iconSize: 24,
+                        onPressed: () {},
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.skip_previous_rounded),
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                        iconSize: 32,
+                        onPressed: () => musicVM.previousSong(),
+                      ),
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF2F80ED), // Bright Blue
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color(0x4D2F80ED),
+                              blurRadius: 20,
+                              offset: Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          icon: Icon(
+                            musicVM.isPlaying
+                                ? Icons.pause_rounded
+                                : Icons.play_arrow_rounded,
+                            color: Colors.white,
+                          ),
+                          iconSize: 36,
+                          onPressed: () => musicVM.togglePlayPause(),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.skip_next_rounded),
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                        iconSize: 32,
+                        onPressed: () => musicVM.nextSong(),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.repeat_rounded),
+                        color: Theme.of(context).disabledColor,
+                        iconSize: 24,
+                        onPressed: () {},
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
-              // Controls
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      musicVM.isFavorite(song.id)
-                          ? Icons.favorite_rounded
-                          : Icons.favorite_border_rounded,
-                    ),
-                    iconSize: 28,
-                    color: musicVM.isFavorite(song.id)
-                        ? Theme.of(context).colorScheme.secondary
-                        : Theme.of(context).disabledColor,
-                    onPressed: () => musicVM.toggleFavorite(song.id),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.skip_previous_rounded),
-                    iconSize: 36,
-                    color: Theme.of(context).iconTheme.color,
-                    onPressed: () => musicVM.previousSong(),
-                  ),
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).colorScheme.primary,
-                          Theme.of(
-                            context,
-                          ).colorScheme.tertiary, // Using tertiary for gradient
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withOpacity(0.4),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        musicVM.isPlaying
-                            ? Icons.pause_rounded
-                            : Icons.play_arrow_rounded,
-                      ),
-                      color: Colors.white,
-                      iconSize: 36,
-                      onPressed: () => musicVM.togglePlayPause(),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.skip_next_rounded),
-                    iconSize: 36,
-                    color: Theme.of(context).iconTheme.color,
-                    onPressed: () => musicVM.nextSong(),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.repeat_rounded),
-                    iconSize: 28,
-                    color: Theme.of(context).disabledColor,
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-              const SizedBox(height: 48),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

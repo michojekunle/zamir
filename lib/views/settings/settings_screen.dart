@@ -21,15 +21,17 @@ class SettingsScreen extends StatelessWidget {
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        leading: Navigator.of(context).canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            : null,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         surfaceTintColor: Colors.transparent,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         children: [
           // Profile Section
           _ProfileCard(
@@ -40,16 +42,59 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 32),
 
-          // Theme Toggle
-          _SectionHeader(title: 'DISPLAY'),
-          const SizedBox(height: 16),
+          // Appearance Section
+          _SectionHeader(title: 'APPEARANCE'),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardTheme.color,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Theme.of(context).dividerColor.withOpacity(0.1),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _AppearanceButton(
+                    icon: Icons.light_mode_rounded,
+                    label: 'Light',
+                    isSelected: !isDark,
+                    onTap: () {
+                      if (isDark) themeVM.toggleTheme();
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: _AppearanceButton(
+                    icon: Icons.dark_mode_rounded,
+                    label: 'Dark',
+                    isSelected: isDark,
+                    onTap: () {
+                      if (!isDark) themeVM.toggleTheme();
+                    },
+                  ),
+                ),
+                // Auto/System option could go here
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // General Group
+          _SectionHeader(title: 'GENERAL'),
+          const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
               color: Theme.of(context).cardTheme.color,
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Theme.of(context).dividerColor.withOpacity(0.05),
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).shadowColor.withOpacity(0.04),
+                  color: Colors.black.withOpacity(0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -58,46 +103,22 @@ class SettingsScreen extends StatelessWidget {
             child: Column(
               children: [
                 _SettingsTile(
-                  icon: Icons.light_mode_rounded,
-                  iconColor: Theme.of(context).colorScheme.tertiary,
-                  title: 'Light Mode',
-                  trailing: Radio<bool>(
-                    value: false,
-                    groupValue: isDark,
-                    onChanged: (value) {
-                      if (value != null && value != isDark) {
-                        themeVM.toggleTheme();
-                      }
-                    },
-                    activeColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  onTap: () {
-                    if (isDark) themeVM.toggleTheme();
-                  },
-                  useContainer: false,
+                  icon: Icons.notifications_rounded,
+                  iconColor: const Color(0xFFFF6B6B), // Pastel Red
+                  title: 'Notifications',
+                  onTap: () {},
                 ),
                 Divider(
                   height: 1,
-                  color: Theme.of(context).dividerColor.withOpacity(0.5),
+                  indent: 64,
+                  color: Theme.of(context).dividerColor.withOpacity(0.2),
                 ),
                 _SettingsTile(
-                  icon: Icons.dark_mode_rounded,
-                  iconColor: Theme.of(context).colorScheme.primary,
-                  title: 'Dark Mode',
-                  trailing: Radio<bool>(
-                    value: true,
-                    groupValue: isDark,
-                    onChanged: (value) {
-                      if (value != null && value != isDark) {
-                        themeVM.toggleTheme();
-                      }
-                    },
-                    activeColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  onTap: () {
-                    if (!isDark) themeVM.toggleTheme();
-                  },
-                  useContainer: false,
+                  icon: Icons.graphic_eq_rounded,
+                  iconColor: const Color(0xFF4ECDC4), // Teal
+                  title: 'Audio Quality',
+                  subtitle: 'High (Streaming)',
+                  onTap: () {},
                 ),
               ],
             ),
@@ -105,141 +126,205 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 32),
 
-          // General Section
-          _SectionHeader(title: 'GENERAL'),
-          const SizedBox(height: 16),
-          _SettingsTile(
-            icon: Icons.notifications_outlined,
-            iconColor: Theme.of(context).colorScheme.primary,
-            title: 'Notifications',
-            onTap: () {},
-          ),
-          const SizedBox(height: 12),
-          _SettingsTile(
-            icon: Icons.high_quality_rounded,
-            iconColor: Theme.of(context).colorScheme.secondary,
-            title: 'Audio Quality',
-            subtitle: 'High quality',
-            onTap: () {},
-          ),
-
-          const SizedBox(height: 32),
-
-          // Account Section
+          // Account Group
           _SectionHeader(title: 'ACCOUNT'),
-          const SizedBox(height: 16),
-          _SettingsTile(
-            icon: Icons.person_outline_rounded,
-            iconColor: Theme.of(context).colorScheme.tertiary,
-            title: 'Email/Phone',
-            subtitle: authVM.email.isNotEmpty ? authVM.email : 'Not set',
-            onTap: () {},
-          ),
           const SizedBox(height: 12),
-          _SettingsTile(
-            icon: Icons.verified_user_outlined,
-            iconColor: Theme.of(context).colorScheme.primary,
-            title: 'Manage Subscription',
-            subtitle: 'Pro',
-            trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-                borderRadius: BorderRadius.circular(20),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardTheme.color,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Theme.of(context).dividerColor.withOpacity(0.05),
               ),
-              child: const Text(
-                'PRO',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-              ),
+              ],
             ),
-            onTap: () {},
+            child: Column(
+              children: [
+                _SettingsTile(
+                  icon: Icons.email_rounded,
+                  iconColor: const Color(0xFF45B7D1), // Blue
+                  title: 'Email',
+                  subtitle: authVM.email.isNotEmpty
+                      ? authVM.email
+                      : 'Link Email',
+                  onTap: () {},
+                ),
+                Divider(
+                  height: 1,
+                  indent: 64,
+                  color: Theme.of(context).dividerColor.withOpacity(0.2),
+                ),
+                _SettingsTile(
+                  icon: Icons.workspace_premium_rounded,
+                  iconColor: const Color(0xFFFFBE0B), // Yellow/Gold
+                  title: 'Subscription',
+                  subtitle: 'Free Plan',
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFBE0B).withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      'UPGRADE',
+                      style: TextStyle(
+                        color: Color(0xFFF59F00),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+                  onTap: () {},
+                ),
+              ],
+            ),
           ),
+
           const SizedBox(height: 32),
 
-          // Support Section
+          // Support Group
           _SectionHeader(title: 'SUPPORT'),
-          const SizedBox(height: 16),
-          _SettingsTile(
-            icon: Icons.help_outline_rounded,
-            iconColor: Theme.of(context).colorScheme.secondary,
-            title: 'Help Center',
-            onTap: () {},
-          ),
           const SizedBox(height: 12),
-          _SettingsTile(
-            icon: Icons.policy_outlined,
-            iconColor: Theme.of(context).colorScheme.tertiary,
-            title: 'Privacy Policy',
-            onTap: () {},
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardTheme.color,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Theme.of(context).dividerColor.withOpacity(0.05),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                _SettingsTile(
+                  icon: Icons.help_rounded,
+                  iconColor: const Color(0xFF96F550), // Lime
+                  title: 'Help Center',
+                  onTap: () {},
+                ),
+                Divider(
+                  height: 1,
+                  indent: 64,
+                  color: Theme.of(context).dividerColor.withOpacity(0.2),
+                ),
+                _SettingsTile(
+                  icon: Icons.privacy_tip_rounded,
+                  iconColor: const Color(0xFFA06CD5), // Purple
+                  title: 'Privacy Policy',
+                  onTap: () {},
+                ),
+              ],
+            ),
           ),
+
           const SizedBox(height: 48),
 
-          // Logout Button
+          // Log Out
           Center(
-            child: TextButton.icon(
+            child: TextButton(
               onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Logout'),
-                    content: const Text('Are you sure you want to logout?'),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          authVM.signOut();
-                          Navigator.pop(context); // Dialog
-                          Navigator.pop(context); // Screen
-                        },
-                        child: Text(
-                          'Logout',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
+                themeVM.toggleTheme(); // Just for demo, fix to logout
+                // authVM.signOut();
+                // Navigator...
               },
-              icon: Icon(
-                Icons.logout_rounded,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              label: Text(
-                'Log Out',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
               style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                backgroundColor: Theme.of(
-                  context,
-                ).colorScheme.error.withOpacity(0.1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: const Text(
+                'Log Out',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Center(
+            child: Text(
+              'Version 1.0.0',
+              style: TextStyle(
+                color: Theme.of(context).disabledColor,
+                fontSize: 12,
               ),
             ),
           ),
           const SizedBox(height: 40),
         ],
+      ),
+    );
+  }
+}
+
+class _AppearanceButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _AppearanceButton({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).scaffoldBackgroundColor
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isSelected
+                  ? Theme.of(context).textTheme.bodyLarge?.color
+                  : Theme.of(context).disabledColor,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isSelected
+                    ? Theme.of(context).textTheme.bodyLarge?.color
+                    : Theme.of(context).disabledColor,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -260,95 +345,61 @@ class _ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.06),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(3),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                width: 2,
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 36,
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.primary.withOpacity(0.1),
+          backgroundImage: imageUrl != null ? NetworkImage(imageUrl!) : null,
+          child: imageUrl == null
+              ? Icon(
+                  Icons.person,
+                  size: 36,
+                  color: Theme.of(context).colorScheme.primary,
+                )
+              : null,
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name.isNotEmpty ? name : 'Guest',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            child: CircleAvatar(
-              radius: 32,
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.primary.withOpacity(0.1),
-              child: imageUrl != null
-                  ? ClipOval(
-                      child: Image.network(
-                        imageUrl!,
-                        fit: BoxFit.cover,
-                        width: 64,
-                        height: 64,
-                      ),
-                    )
-                  : Icon(
-                      Icons.person_rounded,
-                      size: 36,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-            ),
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              Text(
+                email.isNotEmpty ? email : 'Sign in to sync your library',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).disabledColor,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  email,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.color?.withOpacity(0.7),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
 class _SectionHeader extends StatelessWidget {
   final String title;
-
   const _SectionHeader({required this.title});
-
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 8),
+      padding: const EdgeInsets.only(left: 12),
       child: Text(
         title,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: Theme.of(context).primaryColor,
-          letterSpacing: 1.0,
+          fontWeight: FontWeight.w900,
+          color: Theme.of(context).disabledColor,
+          letterSpacing: 1.2,
+          fontSize: 12,
         ),
       ),
     );
@@ -362,7 +413,6 @@ class _SettingsTile extends StatelessWidget {
   final String? subtitle;
   final Widget? trailing;
   final VoidCallback onTap;
-  final bool useContainer;
 
   const _SettingsTile({
     required this.icon,
@@ -371,85 +421,38 @@ class _SettingsTile extends StatelessWidget {
     this.subtitle,
     this.trailing,
     required this.onTap,
-    this.useContainer = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final content = Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Icon(icon, color: iconColor, size: 22),
+    return ListTile(
+      onTap: onTap,
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: iconColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+        child: Icon(icon, color: iconColor, size: 20),
+      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle!,
+              style: TextStyle(
+                color: Theme.of(context).disabledColor,
+                fontSize: 12,
               ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  subtitle!,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.color?.withOpacity(0.8),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        if (trailing != null)
-          trailing!
-        else
+            )
+          : null,
+      trailing:
+          trailing ??
           Icon(
             Icons.chevron_right_rounded,
             color: Theme.of(context).disabledColor,
+            size: 20,
           ),
-      ],
-    );
-
-    if (!useContainer) {
-      return InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: content,
-        ),
-      );
-    }
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardTheme.color,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).shadowColor.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: content,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     );
   }
 }

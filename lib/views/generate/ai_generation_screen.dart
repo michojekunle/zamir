@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../view_models/generation_view_model.dart';
 import '../../utils/constants.dart';
 import 'generating_screen.dart';
+import 'widgets/style_selection_grid.dart';
 
 class AIGenerationScreen extends StatefulWidget {
   const AIGenerationScreen({super.key});
@@ -13,14 +14,19 @@ class AIGenerationScreen extends StatefulWidget {
 
 class _AIGenerationScreenState extends State<AIGenerationScreen> {
   final TextEditingController _scriptureController = TextEditingController();
-  final TextEditingController _verseController = TextEditingController();
-  String? _selectedMood;
+  double _duration = 2.5; // Default 2 min 30 sec (represented as float minutes)
+  String? _selectedStyle = 'Meditation';
 
   @override
   void dispose() {
     _scriptureController.dispose();
-    _verseController.dispose();
     super.dispose();
+  }
+
+  String _formatDuration(double value) {
+    final minutes = value.floor();
+    final seconds = ((value - minutes) * 60).round();
+    return '$minutes min ${seconds.toString().padLeft(2, '0')} sec';
   }
 
   @override
@@ -29,368 +35,312 @@ class _AIGenerationScreenState extends State<AIGenerationScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              floating: true,
-              title: Text(
-                'Create',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          'Compose from Scripture',
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history_rounded),
+            onPressed: () {
+              // Show history
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Your Inspiration
+            Text(
+              'Your Inspiration',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              height: 180,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white, // White card for light mode, dark for dark
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+                border: Border.all(
+                  color: Theme.of(context).dividerColor.withOpacity(0.1),
                 ),
               ),
-              centerTitle: true,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              surfaceTintColor: Colors.transparent,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                onPressed: () => Navigator.of(context).pop(),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _scriptureController,
+                      maxLines: null,
+                      decoration: InputDecoration(
+                        hintText:
+                            'Type a verse like Psalm 23, or a theme like \'Hope\' to guide the melody...',
+                        hintStyle: TextStyle(
+                          color: Theme.of(context).disabledColor,
+                          height: 1.5,
+                        ),
+                        border: InputBorder.none,
+                      ),
+                      onChanged: (val) {
+                        genVM.setScripture(val);
+                      },
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Icon(
+                      Icons
+                          .filter_center_focus_rounded, // Use a maximize/expand icon lookalike
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ],
               ),
             ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header
-                    Text(
-                      'What verse speaks\nto you today?',
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        height: 1.2,
-                        fontSize: 28,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Enter a scripture and we\'ll create a unique melody just for you.',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(
-                          context,
-                        ).textTheme.bodyLarge?.color?.withOpacity(0.7),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
+            const SizedBox(height: 16),
 
-                    // Quick inspiration chips
-                    Text(
-                      'Quick Inspiration',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      height: 48,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: ScriptureSamples.samples.length,
-                        itemBuilder: (context, index) {
-                          final sample = ScriptureSamples.samples[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: ActionChip(
-                              label: Text(
-                                sample['reference']!,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              onPressed: () {
-                                _scriptureController.text =
-                                    sample['reference']!;
-                                _verseController.text = sample['verse']!;
-                                genVM.setScripture(sample['reference']!);
-                                genVM.setVerse(sample['verse']!);
-                              },
-                              backgroundColor: Theme.of(
-                                context,
-                              ).cardTheme.color,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: BorderSide(
-                                  color: Theme.of(context).dividerColor,
-                                ),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 10,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 32),
+            // Quick Chips
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _QuickChip(
+                    label: '✨ Verse of the Day',
+                    color: const Color(0xFFEBF8FF),
+                    textColor: const Color(0xFF4299E1),
+                    onTap: () {
+                      _scriptureController.text = 'Psalm 23:1';
+                      genVM.setScripture('Psalm 23:1');
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  _QuickChip(label: 'Psalms', onTap: () {}),
+                  const SizedBox(width: 12),
+                  _QuickChip(label: 'Proverbs', onTap: () {}),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
 
-                    // Scripture reference input
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardTheme.color,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Theme.of(
-                              context,
-                            ).shadowColor.withOpacity(0.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: _scriptureController,
-                        onChanged: genVM.setScripture,
-                        decoration: InputDecoration(
-                          labelText: 'Scripture Reference',
-                          hintText: 'e.g., Psalm 23:1-6',
-                          prefixIcon: Icon(
-                            Icons.menu_book_rounded,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.all(20),
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+            // Musical Style
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Musical Style',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    'View All',
+                    style: TextStyle(color: Theme.of(context).primaryColor),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            StyleSelectionGrid(
+              selectedStyle: _selectedStyle,
+              onStyleSelected: (style) {
+                setState(() {
+                  _selectedStyle = style;
+                });
+                genVM.setMood(style);
+              },
+            ),
+            const SizedBox(height: 32),
 
-                    // Verse input
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardTheme.color,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Theme.of(
-                              context,
-                            ).shadowColor.withOpacity(0.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        controller: _verseController,
-                        onChanged: genVM.setVerse,
-                        maxLines: 5,
-                        decoration: InputDecoration(
-                          labelText: 'Verse Text',
-                          hintText: 'Enter the scripture verse...',
-                          alignLabelWithHint: true,
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.all(20),
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                        ),
-                      ),
+            // Duration
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Duration',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    _formatDuration(_duration),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
                     ),
-                    const SizedBox(height: 32),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                activeTrackColor: Theme.of(context).colorScheme.primary,
+                inactiveTrackColor: Theme.of(
+                  context,
+                ).dividerColor.withOpacity(0.2),
+                thumbColor: Theme.of(context).colorScheme.primary,
+                overlayColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withOpacity(0.2),
+                trackHeight: 6.0,
+                thumbShape: const RoundSliderThumbShape(
+                  enabledThumbRadius: 10.0,
+                  elevation: 4,
+                ),
+                overlayShape: const RoundSliderOverlayShape(
+                  overlayRadius: 18.0,
+                ),
+              ),
+              child: Slider(
+                value: _duration,
+                min: 0.5,
+                max: 5.0,
+                divisions: 9,
+                onChanged: (val) {
+                  setState(() {
+                    _duration = val;
+                  });
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '30s',
+                    style: TextStyle(
+                      color: Theme.of(context).disabledColor,
+                      fontSize: 12,
+                    ),
+                  ),
+                  Text(
+                    '5m',
+                    style: TextStyle(
+                      color: Theme.of(context).disabledColor,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-                    // Mood selection
-                    Text(
-                      'How are you feeling?',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: MoodOptions.moods.map((mood) {
-                        final isSelected = _selectedMood == mood['name'];
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedMood = isSelected ? null : mood['name'];
-                            });
-                            genVM.setMood(_selectedMood);
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? Color(mood['color'])
-                                  : Theme.of(context).cardTheme.color,
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(
-                                color: isSelected
-                                    ? Color(mood['color'])
-                                    : Theme.of(context).dividerColor,
-                                width: isSelected ? 0 : 1,
-                              ),
-                              boxShadow: isSelected
-                                  ? [
-                                      BoxShadow(
-                                        color: Color(
-                                          mood['color'],
-                                        ).withOpacity(0.4),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  mood['emoji'],
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  mood['name'],
-                                  style: TextStyle(
-                                    color: isSelected
-                                        ? Colors.white
-                                        : Theme.of(
-                                            context,
-                                          ).textTheme.bodyMedium?.color,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 40),
-
-                    // Generate button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: genVM.canGenerate
-                            ? () {
-                                genVM.generate();
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => const GeneratingScreen(),
-                                  ),
-                                );
-                              }
-                            : null,
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                          elevation: genVM.canGenerate ? 4 : 0,
-                          backgroundColor: Theme.of(context).primaryColor,
-                          foregroundColor: Colors.white,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.auto_awesome_rounded),
-                            SizedBox(width: 8),
-                            Text(
-                              'Generate Music',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 48),
-
-                    // Recent generations
-                    if (genVM.generatedSongs.isNotEmpty) ...[
-                      Text(
-                        'Recent Creations',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ...genVM.generatedSongs.take(5).map((song) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).cardTheme.color,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Theme.of(
-                                    context,
-                                  ).shadowColor.withOpacity(0.04),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              leading: Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.primary.withOpacity(0.2),
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.secondary.withOpacity(0.2),
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.music_note_rounded,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                              title: Text(
-                                song.title,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Text(
-                                song.scripture ?? '',
-                                style: Theme.of(context).textTheme.bodySmall,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              trailing: Icon(
-                                Icons.play_circle_fill_rounded,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 32,
-                              ),
-                              onTap: () {
-                                // Play the song
-                              },
-                            ),
-                          ),
-                        );
-                      }),
-                    ],
-                  ],
+            const SizedBox(height: 16),
+            Center(
+              child: Text(
+                'AI will generate a unique melody based on the\nsentiment of your text.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Theme.of(context).disabledColor,
+                  fontSize: 12,
                 ),
               ),
             ),
+            const SizedBox(height: 24),
+
+            // Generate Button
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  // Logic to generate
+                  genVM.generate();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const GeneratingScreen()),
+                  );
+                },
+                icon: const Icon(Icons.music_note_rounded),
+                label: const Text(
+                  'Generate Music',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2F80ED), // Bright Blue
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  elevation: 4,
+                  shadowColor: const Color(0xFF2F80ED).withOpacity(0.5),
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _QuickChip extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  final Color? color;
+  final Color? textColor;
+
+  const _QuickChip({
+    required this.label,
+    required this.onTap,
+    this.color,
+    this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: color ?? Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.withOpacity(0.2)),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: textColor ?? Colors.grey.shade700,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
