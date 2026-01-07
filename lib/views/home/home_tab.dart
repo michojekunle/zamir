@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../view_models/music_view_model.dart';
-import '../../view_models/playlist_view_model.dart';
+
 import '../../view_models/auth_view_model.dart';
 import '../../view_models/generation_view_model.dart';
 import '../../utils/constants.dart';
@@ -15,46 +15,60 @@ class HomeTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final musicVM = context.watch<MusicViewModel>();
-    final playlistVM = context.watch<PlaylistViewModel>();
     final authVM = context.watch<AuthViewModel>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
           // App bar with greeting
           SliverAppBar(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            surfaceTintColor: Colors.transparent, // Avoid tint
             floating: true,
+            toolbarHeight: 70,
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   _getGreeting(),
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                 ),
                 Text(
-                  authVM.displayName,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  authVM.displayName.isNotEmpty ? authVM.displayName : 'Friend',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.displayLarge?.color,
+                  ),
                 ),
               ],
             ),
             actions: [
               IconButton(
-                icon: Icon(Icons.notifications_outlined),
+                icon: const Icon(Icons.notifications_outlined),
                 onPressed: () {},
+                style: IconButton.styleFrom(
+                  backgroundColor: Theme.of(context).cardTheme.color,
+                  padding: const EdgeInsets.all(12),
+                ),
               ),
+              const SizedBox(width: 8),
               IconButton(
-                icon: Icon(Icons.settings_outlined),
+                icon: const Icon(Icons.settings_outlined),
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const SettingsScreen()),
                   );
                 },
+                style: IconButton.styleFrom(
+                  backgroundColor: Theme.of(context).cardTheme.color,
+                  padding: const EdgeInsets.all(12),
+                ),
               ),
+              const SizedBox(width: 16),
             ],
           ),
 
@@ -82,16 +96,16 @@ class HomeTab extends StatelessWidget {
                           end: Alignment.bottomRight,
                           colors: [
                             Theme.of(context).colorScheme.primary,
-                            Theme.of(context).colorScheme.secondary,
+                            const Color(0xFF8E86FF), // Slightly lighter Indigo
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
                             color: Theme.of(
                               context,
                             ).colorScheme.primary.withOpacity(0.3),
-                            blurRadius: 20,
+                            blurRadius: 25,
                             offset: const Offset(0, 10),
                           ),
                         ],
@@ -103,16 +117,16 @@ class HomeTab extends StatelessWidget {
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(14),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.auto_awesome,
                               color: Colors.white,
-                              size: 24,
+                              size: 26,
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          Text(
+                          const SizedBox(height: 20),
+                          const Text(
                             'Create a New Psalm',
                             style: TextStyle(
                               fontSize: 22,
@@ -125,50 +139,86 @@ class HomeTab extends StatelessWidget {
                             'Transform your favorite scripture into a beautiful melody',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.9),
+                              fontSize: 15,
+                              height: 1.4,
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Text(
-                                'Start Creating',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
+                          const SizedBox(height: 20),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Text(
+                                  'Start Creating',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Icon(
-                                Icons.arrow_forward,
-                                color: Colors.white,
-                                size: 18,
-                              ),
-                            ],
+                                SizedBox(width: 8),
+                                Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 36),
 
                   // How are you feeling
                   Text(
                     'How are you feeling?',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   SizedBox(
-                    height: 44,
+                    height: 50,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: MoodOptions.moods.length,
                       itemBuilder: (context, index) {
                         final mood = MoodOptions.moods[index];
                         return Padding(
-                          padding: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.only(right: 12),
                           child: ActionChip(
-                            avatar: Text(mood['emoji']),
-                            label: Text(mood['name']),
+                            elevation: 0,
+                            side: BorderSide.none,
+                            backgroundColor: Theme.of(context).cardTheme.color,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            avatar: Text(
+                              mood['emoji'],
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                            label: Text(
+                              mood['name'],
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(
+                                  context,
+                                ).textTheme.bodyLarge?.color,
+                              ),
+                            ),
                             onPressed: () {
                               final genVM = context.read<GenerationViewModel>();
                               genVM.setMood(mood['name']);
@@ -183,57 +233,61 @@ class HomeTab extends StatelessWidget {
                       },
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 36),
 
                   // Featured song
                   if (musicVM.sampleSongs.isNotEmpty) ...[
-                    Text(
-                      'Featured Today',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Featured Today',
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     _FeaturedSongCard(song: musicVM.sampleSongs.first),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 36),
                   ],
 
                   // Continue listening
                   if (musicVM.recentlyPlayed.isNotEmpty) ...[
                     Text(
                       'Continue Listening',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 16),
                     SizedBox(
-                      height: 180,
+                      height: 190,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: musicVM.recentlyPlayed.length,
                         itemBuilder: (context, index) {
                           final song = musicVM.recentlyPlayed[index];
                           return Padding(
-                            padding: const EdgeInsets.only(right: 12),
+                            padding: const EdgeInsets.only(right: 16),
                             child: _SongCard(song: song),
                           );
                         },
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 36),
                   ],
 
                   // Browse by mood
                   Text(
                     'Browse by Mood',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
-                    height: 100,
+                    height: 120, // Increased height for better fit
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: 4,
@@ -242,42 +296,52 @@ class HomeTab extends StatelessWidget {
                           'Peaceful',
                           'Joyful',
                           'Reflective',
-                          'Hopeful',
+                          'Hopeful', // Fixed typo 'Hopefully' -> 'Hopeful' in previous logic or assumed intent
                         ];
+                        // Using friendlier pastel colors
                         final colors = [
-                          Colors.blue,
-                          Colors.orange,
-                          Colors.purple,
-                          Colors.green,
+                          const Color(0xFF63B3ED), // Soft Blue
+                          const Color(0xFFF6AD55), // Soft Orange
+                          const Color(0xFF9F7AEA), // Soft Purple
+                          const Color(0xFF68D391), // Soft Green
                         ];
                         final icons = [
-                          Icons.self_improvement,
-                          Icons.celebration,
-                          Icons.menu_book,
-                          Icons.wb_sunny,
+                          Icons.spa_rounded,
+                          Icons.celebration_rounded,
+                          Icons.menu_book_rounded,
+                          Icons.wb_sunny_rounded,
                         ];
                         return Padding(
                           padding: const EdgeInsets.only(right: 12),
                           child: Container(
                             width: 130,
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: colors[index].withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(16),
+                              color: colors[index].withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  icons[index],
-                                  color: colors[index],
-                                  size: 32,
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.6),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    icons[index],
+                                    color: colors[index],
+                                    size: 28,
+                                  ),
                                 ),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 12),
                                 Text(
                                   moods[index],
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color: colors[index],
+                                    fontWeight: FontWeight.bold,
+                                    color: colors[index].withOpacity(0.8),
+                                    fontSize: 15,
                                   ),
                                 ),
                               ],
@@ -325,85 +389,101 @@ class _FeaturedSongCard extends StatelessWidget {
       },
       child: Container(
         width: double.infinity,
-        height: 200,
+        height: 220,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.indigo.shade400, Colors.blue.shade600],
+            colors: [
+              const Color(0xFF7F9CF5), // Soft Indigo
+              const Color(0xFF4C51BF), // Deep Indigo
+            ],
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF5A67D8).withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
         child: Stack(
           children: [
             // Background pattern
             Positioned(
-              right: -20,
-              bottom: -20,
+              right: -30,
+              bottom: -30,
               child: Icon(
-                Icons.music_note,
-                size: 150,
-                color: Colors.white.withOpacity(0.1),
+                Icons.music_note_rounded,
+                size: 180,
+                color: Colors.white.withOpacity(0.08),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
+                      horizontal: 14,
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Featured',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                   const Spacer(),
                   Text(
                     song.title,
-                    style: TextStyle(
-                      fontSize: 24,
+                    style: const TextStyle(
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
+                      height: 1.1,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     song.scripture,
-                    style: TextStyle(color: Colors.white.withOpacity(0.8)),
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 16,
+                    ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
-                          Icons.play_arrow,
-                          color: Colors.blue.shade600,
+                        child: const Icon(
+                          Icons.play_arrow_rounded,
+                          color: Color(0xFF4C51BF),
+                          size: 28,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Text(
+                      const SizedBox(width: 16),
+                      const Text(
                         'Play Now',
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
                         ),
                       ),
                     ],
@@ -430,52 +510,94 @@ class _SongCard extends StatelessWidget {
         context.read<MusicViewModel>().playSong(song);
       },
       child: Container(
-        width: 140,
+        width: 150,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
+          color: Theme.of(context).cardTheme.color,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF6C63FF).withOpacity(0.08),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              height: 100,
+              height: 110,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: [
-                    Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                    Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    Theme.of(context).colorScheme.primary.withOpacity(0.05),
                   ],
                 ),
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(16),
+                  top: Radius.circular(20),
                 ),
               ),
               child: Center(
-                child: Icon(
-                  Icons.music_note,
-                  size: 40,
-                  color: Theme.of(context).colorScheme.primary,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.music_note_rounded,
+                    size: 32,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     song.title,
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     song.scripture,
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.color?.withOpacity(0.8),
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.play_circle_fill_rounded,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Play',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

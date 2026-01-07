@@ -6,9 +6,8 @@ class IntroPersonalizationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -20,16 +19,13 @@ class IntroPersonalizationScreen extends StatelessWidget {
                 child: TextButton(
                   onPressed: () {
                     Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (_) => const SignInScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const SignInScreen()),
                     );
                   },
                   child: Text(
                     'Skip',
-                    style: TextStyle(
-                      color: Theme.of(context).textTheme.bodyMedium?.color,
-                      fontSize: 16,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -44,14 +40,16 @@ class IntroPersonalizationScreen extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      const Color(0xFF4ADE80),
-                      const Color(0xFF3B82F6),
+                      Theme.of(context).colorScheme.secondary,
+                      Theme.of(context).colorScheme.primary,
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(32),
+                  borderRadius: BorderRadius.circular(40),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF3B82F6).withOpacity(0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.3),
                       blurRadius: 30,
                       offset: const Offset(0, 10),
                     ),
@@ -64,7 +62,7 @@ class IntroPersonalizationScreen extends StatelessWidget {
                       top: 20,
                       right: 20,
                       child: Icon(
-                        Icons.auto_awesome,
+                        Icons.auto_awesome_rounded,
                         color: Colors.white.withOpacity(0.8),
                         size: 24,
                       ),
@@ -73,7 +71,7 @@ class IntroPersonalizationScreen extends StatelessWidget {
                       bottom: 30,
                       left: 30,
                       child: Icon(
-                        Icons.auto_awesome,
+                        Icons.auto_awesome_rounded,
                         color: Colors.white.withOpacity(0.6),
                         size: 16,
                       ),
@@ -81,30 +79,28 @@ class IntroPersonalizationScreen extends StatelessWidget {
                     // Center icon
                     Center(
                       child: Container(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.2),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
-                          Icons.music_note,
+                          Icons.music_note_rounded,
                           color: Colors.white,
-                          size: 60,
+                          size: 64,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 48),
               // Title
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: TextStyle(
-                    fontSize: 28,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).textTheme.displayLarge?.color,
                     height: 1.3,
                   ),
                   children: [
@@ -119,14 +115,17 @@ class IntroPersonalizationScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               // Description
               Text(
-                'Experience personalized melodies\ninspired by scripture, tailored to your spirit,\nto your spirit.',
+                'Experience personalized melodies\ninspired by scripture, tailored to your spirit.',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      height: 1.5,
-                    ),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  height: 1.6,
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.color?.withOpacity(0.7),
+                ),
               ),
               const Spacer(),
               // Progress indicator
@@ -137,10 +136,9 @@ class IntroPersonalizationScreen extends StatelessWidget {
                     width: 8,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -149,10 +147,9 @@ class IntroPersonalizationScreen extends StatelessWidget {
                     width: 8,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -167,49 +164,52 @@ class IntroPersonalizationScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               // Join button
               SizedBox(
                 width: double.infinity,
+                height: 56,
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (_) => const SignInScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const SignInScreen()),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                    elevation: 2,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
                       Text(
                         'Join Zamir',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       SizedBox(width: 8),
-                      Icon(Icons.arrow_forward, size: 20),
+                      Icon(Icons.arrow_forward_rounded, size: 22),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               // Already have account
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (_) => const SignInScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const SignInScreen()),
                   );
                 },
                 child: Text(
                   'Already have an account? Log in',
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
               const SizedBox(height: 20),

@@ -72,7 +72,6 @@ class _WelcomeCompleteScreenState extends State<WelcomeCompleteScreen>
 
   @override
   Widget build(BuildContext context) {
-    final authVM = context.watch<AuthViewModel>();
     final onboardingVM = context.watch<OnboardingViewModel>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 

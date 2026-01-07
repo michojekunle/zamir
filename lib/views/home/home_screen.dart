@@ -17,17 +17,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _tabs = const [
-    HomeTab(),
-    ExploreTab(),
-    LibraryTab(),
-  ];
+  final List<Widget> _tabs = const [HomeTab(), ExploreTab(), LibraryTab()];
 
   @override
   Widget build(BuildContext context) {
     final musicVM = context.watch<MusicViewModel>();
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: _tabs[_selectedIndex],
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
@@ -37,36 +34,50 @@ class _HomeScreenState extends State<HomeScreen> {
             GestureDetector(
               onTap: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const NowPlayingScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const NowPlayingScreen()),
                 );
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  border: Border(
-                    top: BorderSide(
-                      color: Theme.of(context).dividerColor.withOpacity(0.1),
+                  color: Theme.of(context).cardTheme.color,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).shadowColor.withOpacity(0.08),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
                     ),
-                  ),
+                  ],
                 ),
                 child: Row(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        width: 45,
-                        height: 45,
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                        child: Icon(
-                          Icons.music_note,
-                          color: Theme.of(context).colorScheme.primary,
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.15),
+                            Theme.of(
+                              context,
+                            ).colorScheme.secondary.withOpacity(0.15),
+                          ],
                         ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.music_note_rounded,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,8 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           Text(
                             musicVM.currentSong!.title,
                             style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -84,18 +95,37 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(height: 2),
                           Text(
                             musicVM.currentSong!.scripture,
-                            style: Theme.of(context).textTheme.bodySmall,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.color
+                                      ?.withOpacity(0.7),
+                                ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(
-                        musicVM.isPlaying ? Icons.pause : Icons.play_arrow,
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        shape: BoxShape.circle,
                       ),
-                      onPressed: () => musicVM.togglePlayPause(),
+                      child: IconButton(
+                        icon: Icon(
+                          musicVM.isPlaying
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
+                          size: 24,
+                        ),
+                        color: Colors.white,
+                        onPressed: () => musicVM.togglePlayPause(),
+                      ),
                     ),
                   ],
                 ),
@@ -109,20 +139,44 @@ class _HomeScreenState extends State<HomeScreen> {
                 _selectedIndex = index;
               });
             },
-            destinations: const [
+            backgroundColor: Theme.of(context).cardTheme.color,
+            surfaceTintColor: Colors.transparent,
+            indicatorColor: Theme.of(
+              context,
+            ).colorScheme.primary.withOpacity(0.1),
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+            destinations: [
               NavigationDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home),
+                icon: Icon(
+                  Icons.home_outlined,
+                  color: Theme.of(context).disabledColor,
+                ),
+                selectedIcon: Icon(
+                  Icons.home_rounded,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 label: 'Home',
               ),
               NavigationDestination(
-                icon: Icon(Icons.explore_outlined),
-                selectedIcon: Icon(Icons.explore),
+                icon: Icon(
+                  Icons.explore_outlined,
+                  color: Theme.of(context).disabledColor,
+                ),
+                selectedIcon: Icon(
+                  Icons.explore_rounded,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 label: 'Explore',
               ),
               NavigationDestination(
-                icon: Icon(Icons.library_music_outlined),
-                selectedIcon: Icon(Icons.library_music),
+                icon: Icon(
+                  Icons.library_music_outlined,
+                  color: Theme.of(context).disabledColor,
+                ),
+                selectedIcon: Icon(
+                  Icons.library_music_rounded,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 label: 'Library',
               ),
             ],

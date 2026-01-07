@@ -13,15 +13,23 @@ class SettingsScreen extends StatelessWidget {
     final isDark = themeVM.isDarkMode;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(
+          'Settings',
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        surfaceTintColor: Colors.transparent,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         children: [
           // Profile Section
           _ProfileCard(
@@ -30,152 +38,158 @@ class SettingsScreen extends StatelessWidget {
             imageUrl: authVM.photoUrl,
             isDark: isDark,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
 
           // Theme Toggle
           _SectionHeader(title: 'DISPLAY'),
-          const SizedBox(height: 12),
-          _SettingsTile(
-            icon: Icons.light_mode,
-            iconColor: Theme.of(context).colorScheme.primary,
-            title: 'Light',
-            trailing: Radio<bool>(
-              value: false,
-              groupValue: isDark,
-              onChanged: (value) {
-                if (value != null && value != isDark) {
-                  themeVM.toggleTheme();
-                }
-              },
-              activeColor: Theme.of(context).colorScheme.primary,
+          const SizedBox(height: 16),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardTheme.color,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).shadowColor.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            onTap: () {
-              if (isDark) themeVM.toggleTheme();
-            },
-          ),
-          const SizedBox(height: 8),
-          _SettingsTile(
-            icon: Icons.dark_mode,
-            iconColor: Theme.of(context).colorScheme.primary,
-            title: 'Dark',
-            trailing: Radio<bool>(
-              value: true,
-              groupValue: isDark,
-              onChanged: (value) {
-                if (value != null && value != isDark) {
-                  themeVM.toggleTheme();
-                }
-              },
-              activeColor: Theme.of(context).colorScheme.primary,
+            child: Column(
+              children: [
+                _SettingsTile(
+                  icon: Icons.light_mode_rounded,
+                  iconColor: Theme.of(context).colorScheme.tertiary,
+                  title: 'Light Mode',
+                  trailing: Radio<bool>(
+                    value: false,
+                    groupValue: isDark,
+                    onChanged: (value) {
+                      if (value != null && value != isDark) {
+                        themeVM.toggleTheme();
+                      }
+                    },
+                    activeColor: Theme.of(context).colorScheme.primary,
+                  ),
+                  onTap: () {
+                    if (isDark) themeVM.toggleTheme();
+                  },
+                  useContainer: false,
+                ),
+                Divider(
+                  height: 1,
+                  color: Theme.of(context).dividerColor.withOpacity(0.5),
+                ),
+                _SettingsTile(
+                  icon: Icons.dark_mode_rounded,
+                  iconColor: Theme.of(context).colorScheme.primary,
+                  title: 'Dark Mode',
+                  trailing: Radio<bool>(
+                    value: true,
+                    groupValue: isDark,
+                    onChanged: (value) {
+                      if (value != null && value != isDark) {
+                        themeVM.toggleTheme();
+                      }
+                    },
+                    activeColor: Theme.of(context).colorScheme.primary,
+                  ),
+                  onTap: () {
+                    if (!isDark) themeVM.toggleTheme();
+                  },
+                  useContainer: false,
+                ),
+              ],
             ),
-            onTap: () {
-              if (!isDark) themeVM.toggleTheme();
-            },
           ),
-          const SizedBox(height: 8),
-          _SettingsTile(
-            icon: Icons.phone_android,
-            iconColor: Theme.of(context).colorScheme.primary,
-            title: 'Auto',
-            trailing: Radio<bool>(
-              value: false,
-              groupValue: true,
-              onChanged: null,
-              activeColor: Theme.of(context).colorScheme.primary,
-            ),
-            onTap: () {},
-          ),
-          const SizedBox(height: 24),
+
+          const SizedBox(height: 32),
 
           // General Section
           _SectionHeader(title: 'GENERAL'),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           _SettingsTile(
             icon: Icons.notifications_outlined,
             iconColor: Theme.of(context).colorScheme.primary,
             title: 'Notifications',
             onTap: () {},
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           _SettingsTile(
-            icon: Icons.credit_card,
-            iconColor: Theme.of(context).colorScheme.primary,
+            icon: Icons.high_quality_rounded,
+            iconColor: Theme.of(context).colorScheme.secondary,
             title: 'Audio Quality',
             subtitle: 'High quality',
             onTap: () {},
           ),
-          const SizedBox(height: 8),
-          _SettingsTile(
-            icon: Icons.language,
-            iconColor: Theme.of(context).colorScheme.primary,
-            title: 'No Subscript language (Can grow, ot...',
-            onTap: () {},
-          ),
-          const SizedBox(height: 24),
+
+          const SizedBox(height: 32),
 
           // Account Section
           _SectionHeader(title: 'ACCOUNT'),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           _SettingsTile(
-            icon: Icons.person_outline,
-            iconColor: Theme.of(context).colorScheme.primary,
+            icon: Icons.person_outline_rounded,
+            iconColor: Theme.of(context).colorScheme.tertiary,
             title: 'Email/Phone',
             subtitle: authVM.email.isNotEmpty ? authVM.email : 'Not set',
             onTap: () {},
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           _SettingsTile(
             icon: Icons.verified_user_outlined,
             iconColor: Theme.of(context).colorScheme.primary,
             title: 'Manage Subscription',
             subtitle: 'Pro',
             trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(12),
+                color: Theme.of(context).colorScheme.primary,
+                borderRadius: BorderRadius.circular(20),
               ),
               child: const Text(
                 'PRO',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 10,
+                  fontSize: 11,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
             onTap: () {},
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
 
           // Support Section
           _SectionHeader(title: 'SUPPORT'),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           _SettingsTile(
-            icon: Icons.help_outline,
-            iconColor: Theme.of(context).colorScheme.primary,
+            icon: Icons.help_outline_rounded,
+            iconColor: Theme.of(context).colorScheme.secondary,
             title: 'Help Center',
             onTap: () {},
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           _SettingsTile(
             icon: Icons.policy_outlined,
-            iconColor: Theme.of(context).colorScheme.primary,
+            iconColor: Theme.of(context).colorScheme.tertiary,
             title: 'Privacy Policy',
             onTap: () {},
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 48),
 
           // Logout Button
           Center(
-            child: TextButton(
+            child: TextButton.icon(
               onPressed: () {
-                // Show logout confirmation
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
                     title: const Text('Logout'),
                     content: const Text('Are you sure you want to logout?'),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
@@ -184,24 +198,42 @@ class SettingsScreen extends StatelessWidget {
                       TextButton(
                         onPressed: () {
                           authVM.signOut();
-                          Navigator.pop(context);
-                          Navigator.pop(context);
+                          Navigator.pop(context); // Dialog
+                          Navigator.pop(context); // Screen
                         },
                         child: Text(
                           'Logout',
-                          style: TextStyle(color: Colors.red),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 );
               },
-              child: Text(
+              icon: Icon(
+                Icons.logout_rounded,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              label: Text(
                 'Log Out',
                 style: TextStyle(
-                  color: Colors.red,
+                  color: Theme.of(context).colorScheme.error,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.error.withOpacity(0.1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
             ),
@@ -229,56 +261,72 @@ class _ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? Colors.white.withOpacity(0.1) : Colors.grey.shade200,
-        ),
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).shadowColor.withOpacity(0.06),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: Theme.of(
-              context,
-            ).colorScheme.primary.withOpacity(0.1),
-            child: imageUrl != null
-                ? ClipOval(
-                    child: Image.network(
-                      imageUrl!,
-                      fit: BoxFit.cover,
-                      width: 60,
-                      height: 60,
+          Container(
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                width: 2,
+              ),
+            ),
+            child: CircleAvatar(
+              radius: 32,
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.primary.withOpacity(0.1),
+              child: imageUrl != null
+                  ? ClipOval(
+                      child: Image.network(
+                        imageUrl!,
+                        fit: BoxFit.cover,
+                        width: 64,
+                        height: 64,
+                      ),
+                    )
+                  : Icon(
+                      Icons.person_rounded,
+                      size: 36,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
-                  )
-                : Icon(
-                    Icons.person,
-                    size: 32,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+            ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                Text(email, style: Theme.of(context).textTheme.bodyMedium),
+                Text(
+                  email,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                  ),
+                ),
               ],
             ),
-          ),
-          Icon(
-            Icons.chevron_right,
-            color: Theme.of(context).textTheme.bodyMedium?.color,
           ),
         ],
       ),
@@ -293,13 +341,15 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: Theme.of(context).textTheme.bodyMedium?.color,
-        letterSpacing: 0.5,
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).primaryColor,
+          letterSpacing: 1.0,
+        ),
       ),
     );
   }
@@ -312,6 +362,7 @@ class _SettingsTile extends StatelessWidget {
   final String? subtitle;
   final Widget? trailing;
   final VoidCallback onTap;
+  final bool useContainer;
 
   const _SettingsTile({
     required this.icon,
@@ -320,69 +371,84 @@ class _SettingsTile extends StatelessWidget {
     this.subtitle,
     this.trailing,
     required this.onTap,
+    this.useContainer = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final content = Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: iconColor.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(icon, color: iconColor, size: 22),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  subtitle!,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.color?.withOpacity(0.8),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        if (trailing != null)
+          trailing!
+        else
+          Icon(
+            Icons.chevron_right_rounded,
+            color: Theme.of(context).disabledColor,
+          ),
+      ],
+    );
+
+    if (!useContainer) {
+      return InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: content,
+        ),
+      );
+    }
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isDark
-                ? Colors.white.withOpacity(0.1)
-                : Colors.grey.shade200,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: iconColor, size: 20),
+          color: Theme.of(context).cardTheme.color,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).shadowColor.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle!,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            if (trailing != null)
-              trailing!
-            else
-              Icon(
-                Icons.chevron_right,
-                color: Theme.of(context).textTheme.bodyMedium?.color,
-              ),
           ],
         ),
+        child: content,
       ),
     );
   }

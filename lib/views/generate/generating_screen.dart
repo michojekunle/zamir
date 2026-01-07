@@ -63,7 +63,6 @@ class _GeneratingScreenState extends State<GeneratingScreen>
   @override
   Widget build(BuildContext context) {
     final genVM = context.watch<GenerationViewModel>();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Navigate to result when complete
     if (genVM.state == GenerationState.completed &&
@@ -78,17 +77,24 @@ class _GeneratingScreenState extends State<GeneratingScreen>
     // Handle error
     if (genVM.state == GenerationState.error) {
       return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, size: 80, color: Colors.red),
+                Icon(
+                  Icons.error_outline_rounded,
+                  size: 80,
+                  color: Theme.of(context).colorScheme.error,
+                ),
                 const SizedBox(height: 24),
                 Text(
                   'Generation Failed',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -102,7 +108,7 @@ class _GeneratingScreenState extends State<GeneratingScreen>
                     genVM.reset();
                     Navigator.of(context).pop();
                   },
-                  child: Text('Try Again'),
+                  child: const Text('Try Again'),
                 ),
               ],
             ),
@@ -112,18 +118,16 @@ class _GeneratingScreenState extends State<GeneratingScreen>
     }
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: isDark
-                ? [
-                    const Color(0xFF0F1419),
-                    const Color(0xFF1A1F26),
-                    const Color(0xFF0F1419),
-                  ]
-                : [Colors.white, const Color(0xFFF5F7FF), Colors.white],
+            colors: [
+              Theme.of(context).scaffoldBackgroundColor,
+              Theme.of(context).colorScheme.surface,
+            ],
           ),
         ),
         child: SafeArea(

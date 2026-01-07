@@ -109,11 +109,15 @@ class _SplashScreenState extends State<SplashScreen>
             end: Alignment.bottomCenter,
             colors: isDark
                 ? [
-                    const Color(0xFF0F1419),
-                    const Color(0xFF1A1F26),
-                    const Color(0xFF0F1419),
+                    Theme.of(context).colorScheme.background,
+                    Theme.of(context).colorScheme.surface,
+                    Theme.of(context).colorScheme.background,
                   ]
-                : [Colors.white, const Color(0xFFF5F7FF), Colors.white],
+                : [
+                    Theme.of(context).colorScheme.background,
+                    Theme.of(context).colorScheme.surfaceVariant,
+                    Theme.of(context).colorScheme.background,
+                  ],
           ),
         ),
         child: SafeArea(
