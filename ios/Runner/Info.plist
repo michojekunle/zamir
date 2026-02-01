@@ -52,8 +52,8 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<!-- TODO: Replace with your REVERSED_CLIENT_ID from GoogleService-Info.plist -->
-				<string>com.googleusercontent.apps.REPLACE_WITH_YOUR_ID</string>
+				<!-- Google Sign-In URL Scheme - Get this from Firebase Console -->
+				<string>com.googleusercontent.apps.434440546796-YOUR_IOS_CLIENT_ID</string>
 			</array>
 		</dict>
 	</array>
