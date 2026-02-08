@@ -1,26 +1,36 @@
 {
   "project_info": {
-    "project_number": "434440546796",
-    "project_id": "zamir-music-app",
-    "storage_bucket": "zamir-music-app.firebasestorage.app"
+    "project_number": "768926448470",
+    "project_id": "zamir-cd6b1",
+    "storage_bucket": "zamir-cd6b1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:434440546796:android:017d1f69955029790238c9",
+        "mobilesdk_app_id": "1:768926448470:android:90fac754986d03ac5f74f7",
         "android_client_info": {
-          "package_name": "com.example.zamir"
+          "package_name": "com.devvmichael.zamir"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "768926448470-9lic9sc7vr9n52h0s5dq7lp8konq2u03.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyBEPfdRblPDcAJ3utElaQKDBFoLkgFsuo8"
+          "current_key": "AIzaSyBHd_5ekqlZPQ29gaxjczoUXnnMN8ct6Xo"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "768926448470-9lic9sc7vr9n52h0s5dq7lp8konq2u03.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

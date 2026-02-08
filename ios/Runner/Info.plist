@@ -52,8 +52,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<!-- Google Sign-In URL Scheme - Get this from Firebase Console -->
-				<string>com.googleusercontent.apps.434440546796-YOUR_IOS_CLIENT_ID</string>
+				<string>com.googleusercontent.apps.768926448470-uc79jhf0pn000eipnk9p922glc186920</string>
 			</array>
 		</dict>
 	</array>
