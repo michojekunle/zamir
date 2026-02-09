@@ -40,47 +40,49 @@ class DefaultFirebaseOptions {
     }
   }
 
+  // TODO: Add web config from zamir-cd6b1 Firebase console if needed
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA_thpylXAobvf9lYHLpBdy3svu6ouQMbA',
-    appId: '1:434440546796:web:5dc5a14de4d0fdb90238c9',
-    messagingSenderId: '434440546796',
-    projectId: 'zamir-music-app',
-    authDomain: 'zamir-music-app.firebaseapp.com',
-    storageBucket: 'zamir-music-app.firebasestorage.app',
+    apiKey: 'AIzaSyBHd_5ekqlZPQ29gaxjczoUXnnMN8ct6Xo',
+    appId: '1:768926448470:web:placeholder',
+    messagingSenderId: '768926448470',
+    projectId: 'zamir-cd6b1',
+    authDomain: 'zamir-cd6b1.firebaseapp.com',
+    storageBucket: 'zamir-cd6b1.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBEPfdRblPDcAJ3utElaQKDBFoLkgFsuo8',
-    appId: '1:434440546796:android:017d1f69955029790238c9',
-    messagingSenderId: '434440546796',
-    projectId: 'zamir-music-app',
-    storageBucket: 'zamir-music-app.firebasestorage.app',
+    apiKey: 'AIzaSyBHd_5ekqlZPQ29gaxjczoUXnnMN8ct6Xo',
+    appId: '1:768926448470:android:90fac754986d03ac5f74f7',
+    messagingSenderId: '768926448470',
+    projectId: 'zamir-cd6b1',
+    storageBucket: 'zamir-cd6b1.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyB7oW-OH1AkJpeMVViwZTvKIzZMKFBNUx8',
-    appId: '1:434440546796:ios:aeca4be0ba1d661a0238c9',
-    messagingSenderId: '434440546796',
-    projectId: 'zamir-music-app',
-    storageBucket: 'zamir-music-app.firebasestorage.app',
-    iosBundleId: 'com.example.zamir',
+    apiKey: 'AIzaSyDVfAeDfg9ixNqYnQOg73WR2x6Ec02lbeg',
+    appId: '1:768926448470:ios:36d2ba92be6b64355f74f7',
+    messagingSenderId: '768926448470',
+    projectId: 'zamir-cd6b1',
+    storageBucket: 'zamir-cd6b1.firebasestorage.app',
+    iosBundleId: 'com.devvmichael.zamir',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyB7oW-OH1AkJpeMVViwZTvKIzZMKFBNUx8',
-    appId: '1:434440546796:ios:aeca4be0ba1d661a0238c9',
-    messagingSenderId: '434440546796',
-    projectId: 'zamir-music-app',
-    storageBucket: 'zamir-music-app.firebasestorage.app',
-    iosBundleId: 'com.example.zamir',
+    apiKey: 'AIzaSyDVfAeDfg9ixNqYnQOg73WR2x6Ec02lbeg',
+    appId: '1:768926448470:ios:36d2ba92be6b64355f74f7',
+    messagingSenderId: '768926448470',
+    projectId: 'zamir-cd6b1',
+    storageBucket: 'zamir-cd6b1.firebasestorage.app',
+    iosBundleId: 'com.devvmichael.zamir',
   );
 
+  // TODO: Add windows config from zamir-cd6b1 Firebase console if needed
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyA_thpylXAobvf9lYHLpBdy3svu6ouQMbA',
-    appId: '1:434440546796:web:388219aa1f5fb2df0238c9',
-    messagingSenderId: '434440546796',
-    projectId: 'zamir-music-app',
-    authDomain: 'zamir-music-app.firebaseapp.com',
-    storageBucket: 'zamir-music-app.firebasestorage.app',
+    apiKey: 'AIzaSyBHd_5ekqlZPQ29gaxjczoUXnnMN8ct6Xo',
+    appId: '1:768926448470:web:placeholder',
+    messagingSenderId: '768926448470',
+    projectId: 'zamir-cd6b1',
+    authDomain: 'zamir-cd6b1.firebaseapp.com',
+    storageBucket: 'zamir-cd6b1.firebasestorage.app',
   );
 }
