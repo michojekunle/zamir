@@ -1,0 +1,21 @@
+{
+  "name": "Zamir - The Word in Melody",
+  "short_name": "Zamir",
+  "description": "Stream Bible verses transformed into ambient melodies.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F1B2E",
+  "theme_color": "#0F1B2E",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

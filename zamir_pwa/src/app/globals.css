@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+    --color-navy: #0F1B2E;
+    --color-navy-light: #1A263C;
+    --color-navy-border: #2B3B54;
+    --color-gold: #C9A042;
+    --color-gold-light: #E6C57A;
+    --color-cream: #F7F3EC;
+
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+    --font-serif: 'Fraunces', serif;
+}
+
+@layer base {
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        background-color: #0F1B2E;
+        color: #F7F3EC;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overscroll-behavior-y: none;
+    }
+
+    h1,
+    h2,
+    h3 {
+        font-family: 'Fraunces', serif;
+    }
+
+    ::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #0F1B2E;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #C9A042;
+        border-radius: 2px;
+    }
+}
+
+@utility glass {
+    background: rgba(26, 38, 60, 0.7);
+    border: 1px solid rgba(43, 59, 84, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+@utility glass-gold {
+    background: rgba(201, 160, 66, 0.08);
+    border: 1px solid rgba(201, 160, 66, 0.25);
+    backdrop-filter: blur(12px);
+}
+
+@utility text-gradient-gold {
+    background: linear-gradient(135deg, #F7F3EC 20%, #C9A042 60%, #E6C57A 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+@utility btn-gold {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #C9A042, #E6C57A);
+    color: #0F1B2E;
+    font-weight: 700;
+    border-radius: 9999px;
+    padding: 14px 28px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    box-shadow: 0 8px 24px rgba(201, 160, 66, 0.3);
+}
+
+@utility pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@utility scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+@layer base {
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+}
