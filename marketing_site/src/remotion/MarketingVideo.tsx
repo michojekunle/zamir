@@ -7,6 +7,8 @@ import {
   interpolate,
   spring,
   Easing,
+  Audio,
+  staticFile,
 } from "remotion";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -308,7 +310,16 @@ function Scene1({ frame }: { frame: number }) {
             marginBottom: 24,
           }}
         >
-          <img src="/zamir_icon.png" alt="Zamir Logo" style={{ width: 60, height: 60, borderRadius: "20%", boxShadow: "0 0 20px rgba(201,160,66,0.5)" }} />
+          <img
+            src="/zamir_icon.png"
+            alt="Zamir Logo"
+            style={{
+              width: 60,
+              height: 60,
+              borderRadius: "20%",
+              boxShadow: "0 0 20px rgba(201,160,66,0.5)",
+            }}
+          />
         </div>
 
         <div
@@ -1234,7 +1245,16 @@ function Scene5({ frame }: { frame: number }) {
             opacity: ctaSlide.opacity,
           }}
         >
-          <img src="/zamir_icon.png" alt="Zamir Logo" style={{ width: 60, height: 60, borderRadius: "20%", boxShadow: "0 0 20px rgba(201,160,66,0.5)" }} />
+          <img
+            src="/zamir_icon.png"
+            alt="Zamir Logo"
+            style={{
+              width: 60,
+              height: 60,
+              borderRadius: "20%",
+              boxShadow: "0 0 20px rgba(201,160,66,0.5)",
+            }}
+          />
           <span
             style={{
               color: "#475569",
@@ -1280,6 +1300,36 @@ export const MarketingVideo: React.FC = () => {
       {/* Scene 5: 420–509 */}
       <Sequence from={420} durationInFrames={90} name="CTA">
         <Scene5 frame={useCurrentFrame()} />
+      </Sequence>
+      {/* Background Ambient Audio */}
+      <Audio
+        src={staticFile("cinematic_ambient.mp3")}
+        volume={(f) =>
+          interpolate(f, [0, 60, 480, 509], [0, 0.5, 0.5, 0], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          })
+        }
+      />
+
+      {/* Transition Sound Effects */}
+      <Sequence from={90}>
+        <Audio src={staticFile("whoosh.wav")} volume={0.4} />
+      </Sequence>
+
+      <Sequence from={210}>
+        <Audio src={staticFile("impact.wav")} volume={0.4} />
+      </Sequence>
+
+      <Sequence from={330}>
+        <Audio src={staticFile("whoosh.wav")} volume={0.4} />
+      </Sequence>
+
+      <Sequence from={420}>
+        <Audio src={staticFile("impact.wav")} volume={0.6} />
+        <Sequence from={15}>
+          <Audio src={staticFile("click.wav")} volume={0.3} />
+        </Sequence>
       </Sequence>
     </AbsoluteFill>
   );
