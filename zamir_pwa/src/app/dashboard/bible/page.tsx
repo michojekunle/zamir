@@ -23,7 +23,7 @@ const bookColors: Record<string, string> = {
   Proverbs: "#10B981",
   Isaiah: "#8B5CF6",
   Matthew: "#EC4899",
-  John: "#E6C57A",
+  John: "#E6D070",
   Romans: "#F59E0B",
   Ephesians: "#06B6D4",
   Philippians: "#14B8A6",
@@ -62,14 +62,14 @@ export default function BiblePage() {
       <div
         className="sticky top-0 z-20 px-5 pt-12 pb-5"
         style={{
-          background: "rgba(15,27,46,0.9)",
+          background: "rgba(9,9,11,0.9)",
           backdropFilter: "blur(20px)",
         }}
       >
         <p className="text-[#C9A042] text-xs font-bold uppercase tracking-[3px] mb-1">
           Scripture
         </p>
-        <h1 className="text-2xl font-serif text-[#F7F3EC] mb-4">
+        <h1 className="text-2xl font-serif text-[#FAFAFA] mb-4">
           The Holy Bible
         </h1>
 
@@ -83,7 +83,7 @@ export default function BiblePage() {
             placeholder="Search books..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-[#1A263C] border border-[#2B3B54] rounded-2xl py-3 pl-11 pr-4 text-sm text-[#F7F3EC] focus:outline-none focus:border-[#C9A042] transition-colors placeholder-slate-600"
+            className="w-full bg-[#18181B] border border-[#27272A] rounded-2xl py-3 pl-11 pr-4 text-sm text-[#FAFAFA] focus:outline-none focus:border-[#C9A042] transition-colors placeholder-slate-600"
           />
         </div>
       </div>
@@ -113,7 +113,7 @@ export default function BiblePage() {
                     >
                       📖
                     </div>
-                    <span className="text-[#F7F3EC] text-sm font-bold">
+                    <span className="text-[#FAFAFA] text-sm font-bold">
                       {name}
                     </span>
                     <span className="text-[10px] text-slate-500">
@@ -150,7 +150,7 @@ export default function BiblePage() {
                     key={book.name}
                     variants={item}
                     whileTap={{ scale: 0.98 }}
-                    className="glass rounded-[20px] p-4 flex items-center gap-4 cursor-pointer hover:border-[#2B3B54] transition-colors"
+                    className="glass rounded-[20px] p-4 flex items-center gap-4 cursor-pointer hover:border-[#27272A] transition-colors"
                   >
                     <div
                       className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-xl"
@@ -159,7 +159,7 @@ export default function BiblePage() {
                       📖
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-[#F7F3EC]">{book.name}</h3>
+                      <h3 className="font-bold text-[#FAFAFA]">{book.name}</h3>
                       <p className="text-xs text-slate-500 mt-0.5">
                         {book.chapters} chapters ·{" "}
                         {book.testament === "OT"
@@ -178,10 +178,10 @@ export default function BiblePage() {
                         <Bookmark
                           size={18}
                           fill={isMarked ? color : "none"}
-                          style={{ color: isMarked ? color : "#4B6080" }}
+                          style={{ color: isMarked ? color : "#A1A1AA" }}
                         />
                       </motion.button>
-                      <ChevronRight size={16} className="text-[#2B3B54]" />
+                      <ChevronRight size={16} className="text-[#27272A]" />
                     </div>
                   </motion.div>
                 );

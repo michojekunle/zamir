@@ -128,8 +128,8 @@ class _AIGenerationScreenState extends State<AIGenerationScreen> {
                 children: [
                   _QuickChip(
                     label: '✨ Verse of the Day',
-                    color: const Color(0xFFEBF8FF),
-                    textColor: const Color(0xFF4299E1),
+                    color: const Color(0xFF18181B),
+                    textColor: const Color(0xFFC9A042),
                     onTap: () {
                       _scriptureController.text = 'Psalm 23:1';
                       genVM.setScripture('Psalm 23:1');
@@ -293,13 +293,13 @@ class _AIGenerationScreenState extends State<AIGenerationScreen> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2F80ED), // Bright Blue
+                  backgroundColor: const Color(0xFFC9A042), // Bright Blue
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                   elevation: 4,
-                  shadowColor: const Color(0xFF2F80ED).withOpacity(0.5),
+                  shadowColor: const Color(0xFFC9A042).withOpacity(0.5),
                 ),
               ),
             ),

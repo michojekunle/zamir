@@ -40,7 +40,7 @@ class IntroTransformScriptureScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 200,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1A1F26) : Colors.white,
+                  color: isDark ? const Color(0xFF09090B) : Colors.white,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: isDark
                       ? null

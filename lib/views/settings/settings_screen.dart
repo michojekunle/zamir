@@ -104,7 +104,7 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 _SettingsTile(
                   icon: Icons.notifications_rounded,
-                  iconColor: const Color(0xFFFF6B6B), // Pastel Red
+                  iconColor: const Color(0xFFC9A042), // Pastel Red
                   title: 'Notifications',
                   onTap: () {},
                 ),
@@ -115,7 +115,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 _SettingsTile(
                   icon: Icons.graphic_eq_rounded,
-                  iconColor: const Color(0xFF4ECDC4), // Teal
+                  iconColor: const Color(0xFFE6D070), // Teal
                   title: 'Audio Quality',
                   subtitle: 'High (Streaming)',
                   onTap: () {},
@@ -148,7 +148,7 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 _SettingsTile(
                   icon: Icons.email_rounded,
-                  iconColor: const Color(0xFF45B7D1), // Blue
+                  iconColor: const Color(0xFFC9A042), // Blue
                   title: 'Email',
                   subtitle: authVM.email.isNotEmpty
                       ? authVM.email
@@ -162,7 +162,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 _SettingsTile(
                   icon: Icons.workspace_premium_rounded,
-                  iconColor: const Color(0xFFFFBE0B), // Yellow/Gold
+                  iconColor: const Color(0xFFE6D070), // Yellow/Gold
                   title: 'Subscription',
                   subtitle: 'Free Plan',
                   trailing: Container(
@@ -171,13 +171,13 @@ class SettingsScreen extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFBE0B).withOpacity(0.2),
+                      color: const Color(0xFFE6D070).withOpacity(0.2),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Text(
                       'UPGRADE',
                       style: TextStyle(
-                        color: Color(0xFFF59F00),
+                        color: Color(0xFFC9A042),
                         fontWeight: FontWeight.bold,
                         fontSize: 10,
                       ),
@@ -213,7 +213,7 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 _SettingsTile(
                   icon: Icons.help_rounded,
-                  iconColor: const Color(0xFF96F550), // Lime
+                  iconColor: const Color(0xFFC9A042), // Lime
                   title: 'Help Center',
                   onTap: () {},
                 ),
@@ -224,7 +224,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 _SettingsTile(
                   icon: Icons.privacy_tip_rounded,
-                  iconColor: const Color(0xFFA06CD5), // Purple
+                  iconColor: const Color(0xFFE6D070), // Purple
                   title: 'Privacy Policy',
                   onTap: () {},
                 ),

@@ -100,14 +100,14 @@ export default function GeneratePage() {
       <div
         className="sticky top-0 z-20 px-5 pt-12 pb-5"
         style={{
-          background: "rgba(15,27,46,0.9)",
+          background: "rgba(9,9,11,0.9)",
           backdropFilter: "blur(20px)",
         }}
       >
         <p className="text-[#C9A042] text-xs font-bold uppercase tracking-[3px] mb-1">
           AI Studio
         </p>
-        <h1 className="text-2xl font-serif text-[#F7F3EC]">
+        <h1 className="text-2xl font-serif text-[#FAFAFA]">
           Create Your Sound
         </h1>
       </div>
@@ -164,7 +164,7 @@ export default function GeneratePage() {
             onChange={(e) => setText(e.target.value)}
             rows={5}
             placeholder="Enter any Bible verse, psalm, or prayer..."
-            className="w-full bg-[#0F1B2E]/60 border border-[#2B3B54] rounded-2xl p-4 text-[#F7F3EC] focus:outline-none focus:border-[#C9A042] resize-none text-sm leading-relaxed placeholder-slate-600 transition-colors"
+            className="w-full bg-[#09090B]/60 border border-[#27272A] rounded-2xl p-4 text-[#FAFAFA] focus:outline-none focus:border-[#C9A042] resize-none text-sm leading-relaxed placeholder-slate-600 transition-colors"
           />
 
           <div className="flex items-center gap-2 text-slate-500 text-xs">
@@ -189,10 +189,10 @@ export default function GeneratePage() {
                 className={`w-full text-left px-4 py-3 rounded-2xl flex items-center justify-between transition-all ${
                   voice === v.id
                     ? "glass-gold border-[#C9A042]/40"
-                    : "bg-[#0F1B2E]/40 border border-[#2B3B54] hover:border-[#2B3B54]"
+                    : "bg-[#09090B]/40 border border-[#27272A] hover:border-[#27272A]"
                 }`}
               >
-                <span className="text-sm font-semibold text-[#F7F3EC]">
+                <span className="text-sm font-semibold text-[#FAFAFA]">
                   {v.label}
                 </span>
                 {voice === v.id && (
@@ -269,7 +269,7 @@ export default function GeneratePage() {
                 ))}
               </div>
 
-              <p className="text-[#F7F3EC] text-sm font-semibold">
+              <p className="text-[#FAFAFA] text-sm font-semibold">
                 Your sound is ready ✨
               </p>
 
@@ -280,21 +280,21 @@ export default function GeneratePage() {
                   whileTap={{ scale: 0.9 }}
                   className="w-16 h-16 rounded-full flex items-center justify-center"
                   style={{
-                    background: "linear-gradient(135deg, #C9A042, #E6C57A)",
+                    background: "linear-gradient(135deg, #C9A042, #E6D070)",
                     boxShadow: "0 8px 24px rgba(201,160,66,0.4)",
                   }}
                 >
                   {isPlaying ? (
                     <Pause
                       size={24}
-                      fill="#0F1B2E"
-                      className="text-[#0F1B2E]"
+                      fill="#09090B"
+                      className="text-[#09090B]"
                     />
                   ) : (
                     <Play
                       size={24}
-                      fill="#0F1B2E"
-                      className="text-[#0F1B2E] ml-1"
+                      fill="#09090B"
+                      className="text-[#09090B] ml-1"
                     />
                   )}
                 </motion.button>

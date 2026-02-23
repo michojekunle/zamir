@@ -66,7 +66,7 @@ function AnimatedBackground() {
     <div className="fixed inset-0 -z-10 overflow-hidden">
       <div
         className="absolute inset-0"
-        style={{ backgroundColor: "#0F1B2E" }}
+        style={{ backgroundColor: "#09090B" }}
       />
       <motion.div
         className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] rounded-full"
@@ -120,7 +120,7 @@ function AnimatedWaveform({ active = true }: { active?: boolean }) {
           key={i}
           className="w-1 rounded-full"
           style={{
-            background: "linear-gradient(to top, #C9A042, #E6C57A)",
+            background: "linear-gradient(to top, #C9A042, #E6D070)",
             minHeight: 4,
           }}
           animate={
@@ -205,7 +205,7 @@ function Navbar() {
           }}
           whileTap={{ scale: 0.97 }}
           className="px-5 py-2 rounded-full text-sm font-semibold text-white"
-          style={{ background: "linear-gradient(135deg, #C9A042, #E6C57A)" }}
+          style={{ background: "linear-gradient(135deg, #C9A042, #E6D070)" }}
         >
           Download Free
         </motion.a>
@@ -231,7 +231,7 @@ function HeroSection() {
           style={{
             borderColor: "rgba(201,160,66,0.4)",
             background: "rgba(201,160,66,0.08)",
-            color: "#E6C57A",
+            color: "#E6D070",
           }}
         >
           <Zap size={14} />
@@ -247,7 +247,7 @@ function HeroSection() {
             fontSize: "clamp(72px, 12vw, 144px)",
             fontFamily: "Fraunces, serif",
             background:
-              "linear-gradient(135deg, #ffffff 30%, #E6C57A 60%, #F7F3EC 90%)",
+              "linear-gradient(135deg, #ffffff 30%, #E6D070 60%, #FAFAFA 90%)",
             WebkitBackgroundClip: "text",
             backgroundClip: "text",
             color: "transparent",
@@ -297,8 +297,8 @@ function HeroSection() {
               boxShadow: "0 20px 60px rgba(201,160,66,0.4)",
             }}
             whileTap={{ scale: 0.97 }}
-            className="flex items-center gap-3 px-8 py-4 rounded-full text-[#0F1B2E] font-bold text-lg"
-            style={{ background: "linear-gradient(135deg, #C9A042, #E6C57A)" }}
+            className="flex items-center gap-3 px-8 py-4 rounded-full text-[#09090B] font-bold text-lg"
+            style={{ background: "linear-gradient(135deg, #C9A042, #E6D070)" }}
           >
             <svg viewBox="0 0 384 512" width="20" fill="currentColor">
               <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.3 48.6-.7 84.4-80 102.7-133-31.5-12.8-56.9-35.8-57.9-77zM296 68.3c15.7-19.6 28.3-48 24.3-76.3-24.3 2.1-55.7 17.4-74.1 39-16.7 19.3-30.8 47.9-24.4 75.7 26.6 2.3 54.2-16.1 74.2-38.4z" />
@@ -473,7 +473,7 @@ const features = [
   {
     icon: <Music size={28} />,
     title: "AI Music Generation",
-    color: "#E6C57A",
+    color: "#E6D070",
     desc: "Personalized scriptural soundscapes created by AI, tuned to your studying or worship mood.",
   },
   {
@@ -485,7 +485,7 @@ const features = [
   {
     icon: <Headphones size={28} />,
     title: "Guided Meditation",
-    color: "#E6C57A",
+    color: "#E6D070",
     desc: "Step-by-step audio guides for prayer and mindfulness rooted in Biblical truth.",
   },
   {
@@ -497,7 +497,7 @@ const features = [
   {
     icon: <Star size={28} />,
     title: "Theologically Sound",
-    color: "#E6C57A",
+    color: "#E6D070",
     desc: "Every track reviewed and endorsed by qualified theologians and worship leaders.",
   },
   {
@@ -585,7 +585,7 @@ const audioTracks = [
     duration: "4:12",
     genre: "Praise",
     icon: "🌅",
-    color: "#E6C57A",
+    color: "#E6D070",
     desc: "Gentle melodics to begin your day with intention and clarity.",
   },
   {
@@ -605,7 +605,7 @@ const audioTracks = [
     duration: "5:30",
     genre: " Evening Worship",
     icon: "🌙",
-    color: "#E6C57A",
+    color: "#E6D070",
     desc: "AI-composed ambient piece inspired by the stillness of evening worship.",
   },
   {
@@ -817,7 +817,7 @@ function StatCard({
         style={{
           fontSize: "clamp(36px, 4vw, 56px)",
           fontFamily: "Fraunces, serif",
-          background: "linear-gradient(135deg, #E6C57A, #C9A042)",
+          background: "linear-gradient(135deg, #E6D070, #C9A042)",
           WebkitBackgroundClip: "text",
           backgroundClip: "text",
           color: "transparent",
@@ -901,7 +901,7 @@ function DownloadSection() {
               <br />
               <span
                 style={{
-                  background: "linear-gradient(135deg, #E6C57A, #F7F3EC)",
+                  background: "linear-gradient(135deg, #E6D070, #FAFAFA)",
                   WebkitBackgroundClip: "text",
                   backgroundClip: "text",
                   color: "transparent",
@@ -924,8 +924,8 @@ function DownloadSection() {
                       <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.3 48.6-.7 84.4-80 102.7-133-31.5-12.8-56.9-35.8-57.9-77zM296 68.3c15.7-19.6 28.3-48 24.3-76.3-24.3 2.1-55.7 17.4-74.1 39-16.7 19.3-30.8 47.9-24.4 75.7 26.6 2.3 54.2-16.1 74.2-38.4z" />
                     </svg>
                   ),
-                  gradient: "linear-gradient(135deg, #C9A042, #E6C57A)",
-                  textColor: "#0F1B2E",
+                  gradient: "linear-gradient(135deg, #C9A042, #E6D070)",
+                  textColor: "#09090B",
                 },
                 {
                   label: "Google Play",
@@ -935,7 +935,7 @@ function DownloadSection() {
                     </svg>
                   ),
                   gradient: "linear-gradient(135deg, #C9A042, #C9A042)",
-                  textColor: "#0F1B2E",
+                  textColor: "#09090B",
                 },
                 {
                   label: "Launch Web App",
@@ -954,7 +954,7 @@ function DownloadSection() {
                   style={{
                     background: btn.gradient !== "none" ? btn.gradient : btn.bg,
                     border: btn.border,
-                    color: btn.textColor || "#F7F3EC",
+                    color: btn.textColor || "#FAFAFA",
                   }}
                 >
                   {btn.icon}

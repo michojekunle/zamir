@@ -43,21 +43,21 @@ class StyleSelectionGrid extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: isSelected
-                  ? const Color(0xFF4299E1)
+                  ? const Color(0xFFC9A042)
                   : Theme.of(context)
                         .cardTheme
                         .color, // Blue when selected, Card color otherwise
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: isSelected
-                    ? const Color(0xFF4299E1)
+                    ? const Color(0xFFC9A042)
                     : Theme.of(context).dividerColor.withOpacity(0.1),
                 width: 2,
               ),
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: const Color(0xFF4299E1).withOpacity(0.3),
+                        color: const Color(0xFFC9A042).withOpacity(0.3),
                         blurRadius: 15,
                         offset: const Offset(0, 8),
                       ),
@@ -104,7 +104,7 @@ class StyleSelectionGrid extends StatelessWidget {
                           ? const Icon(
                               Icons.check,
                               size: 16,
-                              color: Color(0xFF4299E1),
+                              color: Color(0xFFC9A042),
                             )
                           : null,
                     ),

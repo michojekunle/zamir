@@ -79,22 +79,22 @@ class ExploreTab extends StatelessWidget {
                       _MoodCard(
                         title: 'Peaceful',
                         icon: Icons.spa_rounded,
-                        color: Color(0xFF63B3ED),
+                        color: Color(0xFFC9A042),
                       ),
                       _MoodCard(
                         title: 'Joyful',
                         icon: Icons.celebration_rounded,
-                        color: Color(0xFFF6AD55),
+                        color: Color(0xFFC9A042),
                       ),
                       _MoodCard(
                         title: 'Reflective',
                         icon: Icons.menu_book_rounded,
-                        color: Color(0xFF9F7AEA),
+                        color: Color(0xFFE6D070),
                       ),
                       _MoodCard(
                         title: 'Grateful',
                         icon: Icons.favorite_rounded,
-                        color: Color(0xFFF687B3),
+                        color: Color(0xFFC9A042),
                       ),
                     ],
                   ),

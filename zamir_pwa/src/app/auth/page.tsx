@@ -15,7 +15,7 @@ export default function AuthPage() {
 
   if (loading)
     return (
-      <div className="min-h-screen bg-[#0F1B2E] flex items-center justify-center">
+      <div className="min-h-screen bg-[#09090B] flex items-center justify-center">
         <img
           src="/zamir_icon.png"
           alt="Zamir"
@@ -25,7 +25,7 @@ export default function AuthPage() {
     );
 
   return (
-    <div className="min-h-screen bg-[#0F1B2E] flex flex-col items-center justify-center px-6 relative overflow-hidden max-w-md mx-auto">
+    <div className="min-h-screen bg-[#09090B] flex flex-col items-center justify-center px-6 relative overflow-hidden max-w-md mx-auto">
       {/* Background blobs */}
       <div className="absolute top-[-100px] left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#C9A042] rounded-full blur-[140px] opacity-10 pointer-events-none" />
       <div className="absolute bottom-[-100px] right-[-100px] w-[350px] h-[350px] bg-[#1E3A8A] rounded-full blur-[100px] opacity-15 pointer-events-none" />
@@ -85,16 +85,16 @@ export default function AuthPage() {
           </motion.button>
 
           <div className="flex items-center gap-3 text-slate-600">
-            <div className="flex-1 h-px bg-[#2B3B54]" />
+            <div className="flex-1 h-px bg-[#27272A]" />
             <span className="text-xs">or</span>
-            <div className="flex-1 h-px bg-[#2B3B54]" />
+            <div className="flex-1 h-px bg-[#27272A]" />
           </div>
 
           <motion.button
             onClick={continueAsGuest}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
-            className="w-full border border-[#C9A042]/40 text-[#F7F3EC] font-semibold py-4 px-6 rounded-2xl hover:bg-[#C9A042]/10 transition-all"
+            className="w-full border border-[#C9A042]/40 text-[#FAFAFA] font-semibold py-4 px-6 rounded-2xl hover:bg-[#C9A042]/10 transition-all"
           >
             Browse Without Account
           </motion.button>

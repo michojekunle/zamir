@@ -266,7 +266,7 @@ function Scene1({ frame }: { frame: number }) {
   const subtitle = slideUp(frame, 30, fps);
 
   return (
-    <AbsoluteFill style={{ background: "#0F1B2E", opacity: sceneOpacity }}>
+    <AbsoluteFill style={{ background: "#09090B", opacity: sceneOpacity }}>
       <GlowingOrb
         x={960}
         y={540}
@@ -333,7 +333,7 @@ function Scene1({ frame }: { frame: number }) {
               fontSize: 120,
               fontWeight: 900,
               color: "transparent",
-              background: "linear-gradient(135deg, #F7F3EC, #93c5fd, #E6C57A)",
+              background: "linear-gradient(135deg, #FAFAFA, #93c5fd, #E6D070)",
               WebkitBackgroundClip: "text",
               backgroundClip: "text",
               fontFamily: "Fraunces, serif",
@@ -378,7 +378,7 @@ function Scene1({ frame }: { frame: number }) {
             }),
             height: 1,
             background:
-              "linear-gradient(to right, transparent, #C9A042, #E6C57A, transparent)",
+              "linear-gradient(to right, transparent, #C9A042, #E6D070, transparent)",
             opacity: subtitle.opacity,
           }}
         />
@@ -657,7 +657,7 @@ function PhoneMockup({ frame }: { frame: number }) {
                 width: 50,
                 height: 50,
                 borderRadius: 12,
-                background: "linear-gradient(135deg, #C9A042, #E6C57A)",
+                background: "linear-gradient(135deg, #C9A042, #E6D070)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -792,7 +792,7 @@ function Scene3({ frame }: { frame: number }) {
   const phoneSlide = slideUp(localFrame, 5, fps);
 
   return (
-    <AbsoluteFill style={{ background: "#0F1B2E", opacity: sceneOpacity }}>
+    <AbsoluteFill style={{ background: "#09090B", opacity: sceneOpacity }}>
       <div
         style={{
           position: "absolute",
@@ -1160,7 +1160,7 @@ function Scene5({ frame }: { frame: number }) {
               fontSize: 100,
               fontWeight: 900,
               color: "transparent",
-              background: "linear-gradient(135deg, #F7F3EC, #93c5fd, #a78bfa)",
+              background: "linear-gradient(135deg, #FAFAFA, #93c5fd, #a78bfa)",
               WebkitBackgroundClip: "text",
               backgroundClip: "text",
               fontFamily: "Fraunces, serif",
@@ -1208,7 +1208,7 @@ function Scene5({ frame }: { frame: number }) {
             style={{
               padding: "20px 48px",
               borderRadius: 50,
-              background: "linear-gradient(135deg, #C9A042, #E6C57A)",
+              background: "linear-gradient(135deg, #C9A042, #E6D070)",
               color: "white",
               fontSize: 20,
               fontWeight: 700,
@@ -1276,7 +1276,7 @@ function Scene5({ frame }: { frame: number }) {
 
 export const MarketingVideo: React.FC = () => {
   return (
-    <AbsoluteFill style={{ background: "#0F1B2E" }}>
+    <AbsoluteFill style={{ background: "#09090B" }}>
       {/* Scene 1: 0–89 */}
       <Sequence from={0} durationInFrames={90} name="Opening">
         <Scene1 frame={useCurrentFrame()} />
@@ -1301,11 +1301,11 @@ export const MarketingVideo: React.FC = () => {
       <Sequence from={420} durationInFrames={90} name="CTA">
         <Scene5 frame={useCurrentFrame()} />
       </Sequence>
-      {/* Background Ambient Audio */}
+      {/* lively Ad Music track */}
       <Audio
-        src={staticFile("cinematic_ambient.mp3")}
+        src={staticFile("lively_ad.wav")}
         volume={(f) =>
-          interpolate(f, [0, 60, 480, 509], [0, 0.5, 0.5, 0], {
+          interpolate(f, [0, 60, 480, 509], [0, 0.4, 0.4, 0], {
             extrapolateLeft: "clamp",
             extrapolateRight: "clamp",
           })

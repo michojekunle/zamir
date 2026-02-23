@@ -53,7 +53,7 @@ const stats = [
     label: "Sounds Created",
   },
   {
-    icon: <Heart size={20} className="text-[#E6C57A]" />,
+    icon: <Heart size={20} className="text-[#E6D070]" />,
     value: "1.2K",
     label: "Total Likes",
   },
@@ -75,14 +75,14 @@ export default function SettingsPage() {
       <div
         className="sticky top-0 z-20 px-5 pt-12 pb-5"
         style={{
-          background: "rgba(15,27,46,0.9)",
+          background: "rgba(9,9,11,0.9)",
           backdropFilter: "blur(20px)",
         }}
       >
         <p className="text-[#C9A042] text-xs font-bold uppercase tracking-[3px] mb-1">
           Account
         </p>
-        <h1 className="text-2xl font-serif text-[#F7F3EC]">Settings</h1>
+        <h1 className="text-2xl font-serif text-[#FAFAFA]">Settings</h1>
       </div>
 
       <div className="px-5 space-y-6">
@@ -103,15 +103,15 @@ export default function SettingsPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-[#1A263C] flex items-center justify-center text-3xl font-serif text-[#C9A042]">
+                  <div className="w-full h-full bg-[#18181B] flex items-center justify-center text-3xl font-serif text-[#C9A042]">
                     {firstName[0]}
                   </div>
                 )}
               </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#10B981] border-2 border-[#0F1B2E]" />
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#10B981] border-2 border-[#09090B]" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-[#F7F3EC]">
+              <h2 className="text-xl font-bold text-[#FAFAFA]">
                 {user?.displayName ?? "Believer"}
               </h2>
               <p className="text-slate-500 text-sm mt-0.5">{user?.email}</p>
@@ -122,11 +122,11 @@ export default function SettingsPage() {
           </div>
 
           {/* Stats row */}
-          <div className="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-[#2B3B54]">
+          <div className="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-[#27272A]">
             {stats.map((s) => (
               <div key={s.label} className="flex flex-col items-center gap-1">
                 {s.icon}
-                <span className="text-xl font-bold text-[#F7F3EC] font-serif">
+                <span className="text-xl font-bold text-[#FAFAFA] font-serif">
                   {s.value}
                 </span>
                 <span className="text-[10px] text-slate-500 text-center">
@@ -149,17 +149,17 @@ export default function SettingsPage() {
               <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 px-1">
                 {group.label}
               </h3>
-              <div className="glass rounded-[24px] divide-y divide-[#2B3B54]/50 overflow-hidden">
+              <div className="glass rounded-[24px] divide-y divide-[#27272A]/50 overflow-hidden">
                 {group.items.map(({ icon: Icon, label, toggle }) => (
                   <motion.div
                     key={label}
                     whileTap={{ scale: 0.98 }}
-                    className="flex items-center gap-4 p-4 cursor-pointer hover:bg-[#1A263C]/40 transition-colors"
+                    className="flex items-center gap-4 p-4 cursor-pointer hover:bg-[#18181B]/40 transition-colors"
                   >
                     <div className="w-9 h-9 rounded-xl bg-[#C9A042]/10 flex items-center justify-center">
                       <Icon size={18} className="text-[#C9A042]" />
                     </div>
-                    <span className="flex-1 font-semibold text-[#F7F3EC] text-sm">
+                    <span className="flex-1 font-semibold text-[#FAFAFA] text-sm">
                       {label}
                     </span>
                     {toggle ? (
@@ -167,7 +167,7 @@ export default function SettingsPage() {
                         <div className="w-5 h-5 rounded-full bg-white shadow" />
                       </div>
                     ) : (
-                      <ChevronRight size={16} className="text-[#2B3B54]" />
+                      <ChevronRight size={16} className="text-[#27272A]" />
                     )}
                   </motion.div>
                 ))}

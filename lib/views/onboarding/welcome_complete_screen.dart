@@ -82,7 +82,7 @@ class _WelcomeCompleteScreenState extends State<WelcomeCompleteScreen>
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: isDark
-                ? [const Color(0xFF1A1F26), const Color(0xFF0F1419)]
+                ? [const Color(0xFF09090B), const Color(0xFF09090B)]
                 : [
                     Theme.of(context).colorScheme.primary.withOpacity(0.1),
                     Colors.white,

@@ -102,8 +102,8 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            const Color(0xFF6C63FF).withOpacity(0.3),
-                            const Color(0xFF2EC4B6).withOpacity(0.1),
+                            const Color(0xFFC9A042).withOpacity(0.3),
+                            const Color(0xFFE6D070).withOpacity(0.1),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -138,7 +138,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
                   Text(
                     'Acoustic Folk Style', // Placeholder style or get from song
                     style: TextStyle(
-                      color: const Color(0xFF4299E1), // Blue/Link color
+                      color: const Color(0xFFC9A042), // Blue/Link color
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
                     ),
@@ -197,7 +197,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
                   // Slider
                   SliderTheme(
                     data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: const Color(0xFF2F80ED),
+                      activeTrackColor: const Color(0xFFC9A042),
                       inactiveTrackColor: Theme.of(
                         context,
                       ).dividerColor.withOpacity(0.2),
@@ -260,7 +260,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
                         width: 72,
                         height: 72,
                         decoration: const BoxDecoration(
-                          color: Color(0xFF2F80ED), // Bright Blue
+                          color: Color(0xFFC9A042), // Bright Blue
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(

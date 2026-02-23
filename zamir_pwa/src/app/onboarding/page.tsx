@@ -14,7 +14,7 @@ const slides = [
     blob: "#C9A042",
   },
   {
-    icon: <Disc3 size={56} className="text-[#E6C57A]" />,
+    icon: <Disc3 size={56} className="text-[#E6D070]" />,
     tag: "AI Generation",
     title: "Your Faith,\nYour Melody",
     desc: "Type any scripture or prayer and our AI instantly weaves it into meditative music crafted for your soul.",
@@ -22,7 +22,7 @@ const slides = [
     blob: "#3B82F6",
   },
   {
-    icon: <Sparkles size={56} className="text-[#E6C57A]" />,
+    icon: <Sparkles size={56} className="text-[#E6D070]" />,
     tag: "Community",
     title: "Worship\nTogether",
     desc: "Discover sound creations from believers worldwide. Save, share, and be uplifted by the global chorus of faith.",
@@ -60,7 +60,7 @@ export default function OnboardingPage() {
   const slide = slides[step];
 
   return (
-    <div className="min-h-screen bg-[#0F1B2E] flex flex-col items-center justify-between px-6 py-12 overflow-hidden select-none max-w-md mx-auto relative">
+    <div className="min-h-screen bg-[#09090B] flex flex-col items-center justify-between px-6 py-12 overflow-hidden select-none max-w-md mx-auto relative">
       {/* Background blob */}
       <div
         className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full blur-[120px] opacity-20 pointer-events-none transition-all duration-700"
@@ -105,7 +105,7 @@ export default function OnboardingPage() {
               {slide.tag}
             </span>
 
-            <h1 className="text-[#F7F3EC] text-4xl leading-tight font-serif mb-5 whitespace-pre-line">
+            <h1 className="text-[#FAFAFA] text-4xl leading-tight font-serif mb-5 whitespace-pre-line">
               {slide.title}
             </h1>
 

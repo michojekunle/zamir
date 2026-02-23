@@ -20,7 +20,7 @@ export default function DashboardLayout({
 
   if (loading || (!user && !isGuest)) {
     return (
-      <div className="min-h-screen bg-[#0F1B2E] flex items-center justify-center">
+      <div className="min-h-screen bg-[#09090B] flex items-center justify-center">
         <img
           src="/zamir_icon.png"
           alt="Zamir"
@@ -31,7 +31,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#0F1B2E] text-[#F7F3EC]">
+    <div className="min-h-screen bg-[#09090B] text-[#FAFAFA]">
       {children}
       <BottomNav />
     </div>

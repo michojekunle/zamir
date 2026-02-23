@@ -21,11 +21,11 @@ export default function BottomNav() {
       <div
         className="mx-3 mb-3 rounded-[28px] flex items-center justify-around h-[70px] px-2"
         style={{
-          background: "rgba(15, 27, 46, 0.92)",
-          border: "1px solid rgba(43, 59, 84, 0.9)",
+          background: "rgba(9, 9, 11, 0.92)",
+          border: "1px solid rgba(39, 39, 42, 0.9)",
           backdropFilter: "blur(20px)",
           boxShadow:
-            "0 -4px 30px rgba(0,0,0,0.4), 0 0 0 1px rgba(201,160,66,0.05)",
+            "0 -4px 30px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,160,66,0.05)",
         }}
       >
         {navItems.map((item, i) => {
@@ -39,14 +39,14 @@ export default function BottomNav() {
                 onClick={() => router.push(item.href)}
                 className="w-14 h-14 -mt-8 rounded-full flex items-center justify-center shadow-2xl relative"
                 style={{
-                  background: "linear-gradient(135deg, #C9A042, #E6C57A)",
+                  background: "linear-gradient(135deg, #C9A042, #E6D070)",
                   boxShadow:
-                    "0 8px 24px rgba(201,160,66,0.5), 0 2px 8px rgba(0,0,0,0.4)",
+                    "0 8px 24px rgba(201,160,66,0.3), 0 2px 8px rgba(0,0,0,0.4)",
                 }}
               >
                 <Disc3
                   size={26}
-                  className={`text-[#0F1B2E] ${isActive ? "animate-spin" : ""}`}
+                  className={`text-[#09090B] ${isActive ? "animate-spin" : ""}`}
                   style={{ animationDuration: "4s" }}
                 />
               </motion.button>
@@ -69,11 +69,11 @@ export default function BottomNav() {
                 <Icon
                   size={22}
                   strokeWidth={isActive ? 2.5 : 1.8}
-                  className={`transition-colors duration-200 ${isActive ? "text-[#C9A042]" : "text-[#4B6080]"}`}
+                  className={`transition-colors duration-200 ${isActive ? "text-[#C9A042]" : "text-[#A1A1AA]"}`}
                 />
               </motion.div>
               <span
-                className={`text-[10px] font-semibold transition-colors duration-200 ${isActive ? "text-[#C9A042]" : "text-[#4B6080]"}`}
+                className={`text-[10px] font-semibold transition-colors duration-200 ${isActive ? "text-[#C9A042]" : "text-[#A1A1AA]"}`}
               >
                 {item.label}
               </span>

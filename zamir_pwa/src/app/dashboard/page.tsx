@@ -13,7 +13,7 @@ const featured = [
     tag: "Meditation",
     dur: "4:12",
     plays: "12.4K",
-    gradient: "from-[#C9A042]/30 to-[#E6C57A]/10",
+    gradient: "from-[#C9A042]/30 to-[#E6D070]/10",
     accent: "#C9A042",
     verse: '"He leads me beside still waters..."',
   },
@@ -104,7 +104,7 @@ export default function DashboardHome() {
       <div
         className="sticky top-0 z-20 px-5 pt-12 pb-4"
         style={{
-          background: "rgba(15,27,46,0.85)",
+          background: "rgba(9,9,11,0.85)",
           backdropFilter: "blur(16px)",
         }}
       >
@@ -113,7 +113,7 @@ export default function DashboardHome() {
             <p className="text-[#C9A042] text-xs font-bold uppercase tracking-[3px]">
               {greeting}
             </p>
-            <h1 className="text-2xl font-serif text-[#F7F3EC] mt-0.5">
+            <h1 className="text-2xl font-serif text-[#FAFAFA] mt-0.5">
               {firstName}
             </h1>
           </div>
@@ -123,15 +123,15 @@ export default function DashboardHome() {
               onClick={() => router.push("/dashboard/generate")}
               className="w-10 h-10 rounded-full flex items-center justify-center"
               style={{
-                background: "linear-gradient(135deg, #C9A042, #E6C57A)",
+                background: "linear-gradient(135deg, #C9A042, #E6D070)",
                 boxShadow: "0 4px 12px rgba(201,160,66,0.4)",
               }}
             >
-              <Plus size={20} className="text-[#0F1B2E]" strokeWidth={3} />
+              <Plus size={20} className="text-[#09090B]" strokeWidth={3} />
             </motion.button>
             <button
               onClick={() => router.push("/dashboard/settings")}
-              className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#2B3B54]"
+              className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#27272A]"
             >
               {user?.photoURL ? (
                 <img
@@ -140,7 +140,7 @@ export default function DashboardHome() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-[#1A263C] flex items-center justify-center text-[#C9A042] font-bold text-lg">
+                <div className="w-full h-full bg-[#18181B] flex items-center justify-center text-[#C9A042] font-bold text-lg">
                   {firstName[0]}
                 </div>
               )}
@@ -156,7 +156,7 @@ export default function DashboardHome() {
             variants={item}
             className="flex items-center justify-between mb-4"
           >
-            <h2 className="text-lg font-bold text-[#F7F3EC]">Featured</h2>
+            <h2 className="text-lg font-bold text-[#FAFAFA]">Featured</h2>
             <span className="text-xs text-[#C9A042] font-semibold">
               See all
             </span>
@@ -170,8 +170,8 @@ export default function DashboardHome() {
                 whileTap={{ scale: 0.97 }}
                 className="flex-shrink-0 w-64 rounded-[24px] p-5 relative overflow-hidden cursor-pointer select-none"
                 style={{
-                  background: `linear-gradient(135deg, ${track.gradient.replace("from-", "").replace("/", "").split(" ")[0].slice(1, -3)}, ${track.gradient.replace("to-", "").replace("/", "").split(" ")[1]?.slice(1, -3) ?? "#1A263C"})`,
-                  border: "1px solid rgba(43,59,84,0.8)",
+                  background: `linear-gradient(135deg, ${track.gradient.replace("from-", "").replace("/", "").split(" ")[0].slice(1, -3)}, ${track.gradient.replace("to-", "").replace("/", "").split(" ")[1]?.slice(1, -3) ?? "#18181B"})`,
+                  border: "1px solid rgba(39,39,42,0.8)",
                 }}
               >
                 <div
@@ -186,7 +186,7 @@ export default function DashboardHome() {
                 >
                   {track.tag}
                 </span>
-                <h3 className="font-serif text-[#F7F3EC] text-lg font-bold mb-2 leading-snug">
+                <h3 className="font-serif text-[#FAFAFA] text-lg font-bold mb-2 leading-snug">
                   {track.title}
                 </h3>
                 <p className="text-slate-400 text-xs italic mb-6 line-clamp-2">
@@ -238,14 +238,14 @@ export default function DashboardHome() {
             <div
               className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
               style={{
-                background: "linear-gradient(135deg, #C9A042, #E6C57A)",
+                background: "linear-gradient(135deg, #C9A042, #E6D070)",
                 boxShadow: "0 8px 20px rgba(201,160,66,0.35)",
               }}
             >
-              <Disc3 size={28} className="text-[#0F1B2E]" />
+              <Disc3 size={28} className="text-[#09090B]" />
             </div>
             <div className="text-left">
-              <h3 className="font-bold text-[#F7F3EC] text-base">
+              <h3 className="font-bold text-[#FAFAFA] text-base">
                 Create New Sound
               </h3>
               <p className="text-slate-400 text-sm mt-0.5">
@@ -263,7 +263,7 @@ export default function DashboardHome() {
           >
             <div className="flex items-center gap-2">
               <TrendingUp size={16} className="text-[#C9A042]" />
-              <h2 className="text-lg font-bold text-[#F7F3EC]">Trending</h2>
+              <h2 className="text-lg font-bold text-[#FAFAFA]">Trending</h2>
             </div>
             <span
               className="text-xs text-[#C9A042] font-semibold"
@@ -285,7 +285,7 @@ export default function DashboardHome() {
                   <Disc3 size={20} className="text-[#C9A042]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-[#F7F3EC] text-sm truncate">
+                  <h4 className="font-bold text-[#FAFAFA] text-sm truncate">
                     {track.title}
                   </h4>
                   <p className="text-slate-500 text-xs mt-0.5">
@@ -297,7 +297,7 @@ export default function DashboardHome() {
                   whileTap={{ scale: 0.8 }}
                   className="flex items-center gap-1.5 text-xs font-semibold ml-2"
                   style={{
-                    color: liked.includes(track.id) ? "#C9A042" : "#4B6080",
+                    color: liked.includes(track.id) ? "#C9A042" : "#A1A1AA",
                   }}
                 >
                   <Heart

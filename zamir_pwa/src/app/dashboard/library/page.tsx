@@ -107,14 +107,14 @@ export default function LibraryPage() {
       <div
         className="sticky top-0 z-20 px-5 pt-12 pb-4"
         style={{
-          background: "rgba(15,27,46,0.9)",
+          background: "rgba(9,9,11,0.9)",
           backdropFilter: "blur(20px)",
         }}
       >
         <p className="text-[#C9A042] text-xs font-bold uppercase tracking-[3px] mb-1">
           Your Collection
         </p>
-        <h1 className="text-2xl font-serif text-[#F7F3EC] mb-4">Library</h1>
+        <h1 className="text-2xl font-serif text-[#FAFAFA] mb-4">Library</h1>
 
         {/* Tabs */}
         <div className="flex gap-2">
@@ -123,14 +123,14 @@ export default function LibraryPage() {
               key={t}
               onClick={() => setTab(i)}
               className="relative px-5 py-2 rounded-full text-sm font-semibold transition-colors"
-              style={{ color: tab === i ? "#0F1B2E" : "#4B6080" }}
+              style={{ color: tab === i ? "#09090B" : "#A1A1AA" }}
             >
               {tab === i && (
                 <motion.div
                   layoutId="tabBg"
                   className="absolute inset-0 rounded-full"
                   style={{
-                    background: "linear-gradient(135deg, #C9A042, #E6C57A)",
+                    background: "linear-gradient(135deg, #C9A042, #E6D070)",
                   }}
                 />
               )}
@@ -152,7 +152,7 @@ export default function LibraryPage() {
           >
             {myTracks.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                <Disc3 size={48} className="text-[#2B3B54] mb-4" />
+                <Disc3 size={48} className="text-[#27272A] mb-4" />
                 <p className="text-slate-500 font-semibold">No tracks yet</p>
                 <p className="text-slate-600 text-sm mt-1">
                   Create your first scripture melody
@@ -163,21 +163,21 @@ export default function LibraryPage() {
                 <motion.div key={track.id} variants={item}>
                   <div
                     className={`rounded-[22px] overflow-hidden bg-gradient-to-br ${gradients[i % gradients.length]}`}
-                    style={{ border: "1px solid rgba(43,59,84,0.8)" }}
+                    style={{ border: "1px solid rgba(39,39,42,0.8)" }}
                   >
                     <div className="p-4 flex items-center gap-4">
                       <div
                         className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
                         style={{
                           background:
-                            "linear-gradient(135deg, #C9A042, #E6C57A)",
+                            "linear-gradient(135deg, #C9A042, #E6D070)",
                           boxShadow: "0 4px 12px rgba(201,160,66,0.3)",
                         }}
                       >
-                        <Disc3 size={22} className="text-[#0F1B2E]" />
+                        <Disc3 size={22} className="text-[#09090B]" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-[#F7F3EC] text-base truncate">
+                        <h3 className="font-bold text-[#FAFAFA] text-base truncate">
                           {track.title}
                         </h3>
                         <div className="flex items-center gap-3 mt-1">
@@ -232,12 +232,12 @@ export default function LibraryPage() {
                 <div className="glass rounded-[22px] p-4 flex items-center gap-4 cursor-pointer">
                   <div
                     className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br ${gradients[i % gradients.length]}`}
-                    style={{ border: "1px solid rgba(43,59,84,0.6)" }}
+                    style={{ border: "1px solid rgba(39,39,42,0.6)" }}
                   >
                     <Disc3 size={18} className="text-[#C9A042]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-[#F7F3EC] text-sm truncate">
+                    <h3 className="font-bold text-[#FAFAFA] text-sm truncate">
                       {track.title}
                     </h3>
                     <div className="flex items-center gap-2 mt-1">
@@ -256,7 +256,7 @@ export default function LibraryPage() {
                       whileTap={{ scale: 0.8 }}
                       className="flex items-center gap-1 text-xs font-bold"
                       style={{
-                        color: liked.includes(track.id) ? "#C9A042" : "#4B6080",
+                        color: liked.includes(track.id) ? "#C9A042" : "#A1A1AA",
                       }}
                     >
                       <Heart
@@ -265,7 +265,7 @@ export default function LibraryPage() {
                       />
                       {track.hearts + (liked.includes(track.id) ? 1 : 0)}
                     </motion.button>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full glass-gold text-[#E6C57A]">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full glass-gold text-[#E6D070]">
                       {track.tag}
                     </span>
                   </div>

@@ -20,7 +20,7 @@ export default function RootPage() {
   }, [user, loading, router]);
 
   return (
-    <div className="min-h-screen bg-[#0F1B2E] flex items-center justify-center">
+    <div className="min-h-screen bg-[#09090B] flex items-center justify-center">
       <div className="w-16 h-16 rounded-2xl overflow-hidden animate-pulse">
         <img
           src="/zamir_icon.png"

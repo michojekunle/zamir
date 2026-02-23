@@ -49,8 +49,8 @@ class DailyVerseCard extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                const Color(0xFF6C63FF).withOpacity(0.8), // Soft Indigo overlay
-                const Color(0xFF171C26).withOpacity(0.9), // Dark Gunmetal fade
+                const Color(0xFFC9A042).withOpacity(0.8), // Soft Indigo overlay
+                const Color(0xFF09090B).withOpacity(0.9), // Dark Gunmetal fade
               ],
             ),
           ),
@@ -135,7 +135,7 @@ class DailyVerseCard extends StatelessWidget {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2EC4B6), // Friendly Teal
+                      backgroundColor: const Color(0xFFE6D070), // Friendly Teal
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
