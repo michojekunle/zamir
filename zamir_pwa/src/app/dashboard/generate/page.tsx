@@ -12,7 +12,20 @@ import {
   ChevronDown,
   ChevronUp,
   BookMarked,
+  Music,
+  Sparkles,
+  CloudUpload,
+  Globe,
 } from "lucide-react";
+import { useMusic } from "@/lib/MusicContext";
+import { db, auth, storage } from "@/lib/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import {
+  incrementGlobalStat,
+  incrementUserStat,
+  trackEvent,
+} from "@/lib/AnalyticsService";
 
 const PRESETS = [
   {
@@ -37,100 +50,203 @@ const PRESETS = [
   },
 ];
 
-const VOICES = [
-  { id: "21m00Tcm4TlvDq8ikWAM", label: "Rachel — Warm, Peaceful" },
-  { id: "AZnzlk1XvdvUeBnXmlld", label: "Domi — Deep, Meditative" },
-  { id: "MF3mGyEYCl7XYWbV9V6O", label: "Elli — Soft, Devotional" },
-];
+import { useSearchParams } from "next/navigation";
 
 export default function GeneratePage() {
-  const [text, setText] = useState(PRESETS[0].text);
-  const [voice, setVoice] = useState(VOICES[0].id);
+  const searchParams = useSearchParams();
+  const [text, setText] = useState(searchParams.get("text") || PRESETS[0].text);
+  const [voice, setVoice] = useState("");
+  const [mood, setMood] = useState("Peaceful");
+  const [tempo, setTempo] = useState("Slow");
   const [loading, setLoading] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [isPlaying, setIsPlaying] = useState(false);
   const [showPresets, setShowPresets] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [status, setStatus] = useState("");
+  const [lastGenerated, setLastGenerated] = useState<any>(null);
+
+  const { playTrack, isPlaying, togglePlay, currentTrack } = useMusic();
 
   const handleGenerate = async () => {
     setLoading(true);
     setError("");
-    setAudioUrl(null);
-    setIsPlaying(false);
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
+    setStatus("Designing Composition Plan...");
 
     try {
+      // 1. Script Generation (Now returns { composition_plan })
+      const scriptRes = await fetch("/api/script", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, mood, tempo }),
+      });
+
+      if (!scriptRes.ok) throw new Error("Divine orchestration failed.");
+      const { composition_plan } = await scriptRes.json();
+
+      setStatus("Architecting the Soundscape...");
+
+      // 2. Music Generation (Authentic ElevenLabs Music)
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, voiceId: voice }),
+        body: JSON.stringify({ composition_plan }),
       });
-      if (!res.ok) throw new Error("Generation failed. Check your API key.");
+
+      if (!res.ok) {
+        const errData = await res.json();
+        if (res.status === 402) {
+          throw new Error(errData.detail || "Premium Subscription Required");
+        }
+        throw new Error(
+          errData.error ||
+            "The Divine Studio is at capacity. Try again shortly.",
+        );
+      }
+
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      setAudioUrl(url);
-      const audio = new Audio(url);
-      audio.onended = () => setIsPlaying(false);
-      audioRef.current = audio;
+      const isAmbient = res.headers.get("X-Zamir-Type") === "ambient-reading";
+
+      const track = {
+        id: Math.random().toString(36).substr(2, 9),
+        title: text.slice(0, 30) + (text.length > 30 ? "..." : ""),
+        url: url,
+        artist: isAmbient ? "Zamir AI (Ambient)" : "Zamir AI",
+        mood: mood,
+        tempo: tempo,
+      };
+
+      setLastGenerated(track);
+      playTrack(track);
+
+      // Log stats
+      incrementGlobalStat("totalSongs");
+      if (auth.currentUser) {
+        incrementUserStat(auth.currentUser.uid, "songsGenerated");
+      }
+      trackEvent("song_generated", { mood, tempo });
     } catch (e: any) {
       setError(e.message);
     } finally {
       setLoading(false);
+      setStatus("");
     }
   };
 
-  const togglePlay = () => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      audioRef.current.play();
-      setIsPlaying(true);
+  const saveToProfile = async () => {
+    if (!auth.currentUser || !lastGenerated) {
+      if (!auth.currentUser) setError("You must be logged in to save.");
+      return;
+    }
+    try {
+      setStatus("Uploading to cloud...");
+
+      // 1. Fetch the blob from the object URL
+      const response = await fetch(lastGenerated.url);
+      const blob = await response.blob();
+
+      // 2. Upload to Firebase Storage
+      const storageRef = ref(
+        storage,
+        `users/${auth.currentUser.uid}/library/${lastGenerated.id}.mp3`,
+      );
+      await uploadBytes(storageRef, blob);
+      const downloadUrl = await getDownloadURL(storageRef);
+
+      // 3. Save metadata to Firestore
+      await addDoc(collection(db, "users", auth.currentUser.uid, "library"), {
+        ...lastGenerated,
+        url: downloadUrl,
+        createdAt: serverTimestamp(),
+        public: false,
+      });
+
+      setStatus("Saved to Library!");
+      setTimeout(() => setStatus(""), 3000);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to save to cloud.");
+    } finally {
+      setStatus("");
     }
   };
+
+  const handlePublish = async (track: any) => {
+    if (!auth.currentUser) return;
+    try {
+      setStatus("Publishing for review...");
+      await addDoc(collection(db, "moderation_queue"), {
+        ...track,
+        userId: auth.currentUser.uid,
+        userName: auth.currentUser.displayName || "Soul Seeker",
+        status: "pending",
+        createdAt: serverTimestamp(),
+      });
+      setStatus("Published for Review!");
+      setTimeout(() => setStatus(""), 3000);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to publish.");
+    } finally {
+      setStatus("");
+    }
+  };
+
+  const isCurrentGenerated = currentTrack?.id === lastGenerated?.id;
 
   return (
-    <div className="min-h-screen pb-36 overflow-y-auto scrollbar-none">
+    <div className="min-h-screen pb-36 overflow-y-auto scrollbar-none bg-[#09090B]">
       {/* Header */}
-      <div
-        className="sticky top-0 z-20 px-5 pt-12 pb-5"
-        style={{
-          background: "rgba(9,9,11,0.9)",
-          backdropFilter: "blur(20px)",
-        }}
-      >
-        <p className="text-[#C9A042] text-xs font-bold uppercase tracking-[3px] mb-1">
-          AI Studio
+      <div className="sticky top-0 z-20 px-5 pt-12 pb-5 bg-[#09090B]/90 backdrop-blur-xl border-b border-white/5">
+        <p className="text-[#C9A042] text-xs font-bold uppercase tracking-[4px] mb-1">
+          Divine Studio
         </p>
         <h1 className="text-2xl font-serif text-[#FAFAFA]">
-          Create Your Sound
+          Scripture into Sound
         </h1>
       </div>
 
-      <div className="px-5 space-y-6 relative">
-        {/* Background glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 bg-[#C9A042] rounded-full blur-[120px] opacity-10 pointer-events-none" />
+      <div className="px-5 space-y-6 relative max-w-2xl mx-auto pt-6">
+        {/* Decorative elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-[#C9A042] rounded-full blur-[120px] opacity-[0.05] pointer-events-none" />
+
+        {/* Info Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass rounded-[24px] p-5 border border-[#C9A042]/10"
+        >
+          <div className="flex items-start gap-4 text-slate-400">
+            <div className="w-10 h-10 rounded-xl bg-[#C9A042]/10 flex items-center justify-center shrink-0 text-[#C9A042]">
+              <Sparkles size={18} />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-[#FAFAFA] mb-1">
+                Vocal & Melody Synthesis
+              </h3>
+              <p className="text-xs leading-relaxed">
+                Zamir is evolving. We are currently integrating full
+                instrumentation and melodic vocals to turn scripture into the
+                songs of your soul.
+              </p>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Scripture Input */}
-        <div className="glass rounded-[24px] p-5 space-y-4">
+        <div className="glass rounded-[32px] p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold uppercase tracking-[2px] text-slate-400">
-              Scripture / Prayer
+            <label className="text-[10px] font-bold uppercase tracking-[2px] text-slate-500">
+              The Word
             </label>
             <button
               onClick={() => setShowPresets(!showPresets)}
-              className="flex items-center gap-1 text-xs font-semibold text-[#C9A042]"
+              className="flex items-center gap-1.5 text-[10px] font-bold text-[#C9A042] uppercase tracking-wider"
             >
-              <BookMarked size={12} /> Presets{" "}
+              <BookMarked size={14} /> Presets
               {showPresets ? (
-                <ChevronUp size={12} />
+                <ChevronUp size={14} />
               ) : (
-                <ChevronDown size={12} />
+                <ChevronDown size={14} />
               )}
             </button>
           </div>
@@ -150,7 +266,7 @@ export default function GeneratePage() {
                       setText(p.text);
                       setShowPresets(false);
                     }}
-                    className="px-3 py-1.5 rounded-full text-xs font-semibold glass-gold"
+                    className="px-4 py-2 rounded-full text-[10px] font-bold tracking-widest uppercase glass-gold hover:bg-[#C9A042]/20 transition-colors"
                   >
                     {p.label}
                   </button>
@@ -163,46 +279,46 @@ export default function GeneratePage() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             rows={5}
-            placeholder="Enter any Bible verse, psalm, or prayer..."
-            className="w-full bg-[#09090B]/60 border border-[#27272A] rounded-2xl p-4 text-[#FAFAFA] focus:outline-none focus:border-[#C9A042] resize-none text-sm leading-relaxed placeholder-slate-600 transition-colors"
+            placeholder="Paste your favorite bible verse here..."
+            className="w-full bg-white/[0.02] border border-white/5 rounded-2xl p-5 text-[#FAFAFA] focus:outline-none focus:border-[#C9A042]/50 resize-none text-base leading-relaxed placeholder-slate-700 transition-all font-medium"
           />
-
-          <div className="flex items-center gap-2 text-slate-500 text-xs">
-            <span>{text.length} characters</span>
-            <span className="ml-auto text-[#C9A042]">
-              {text.split(" ").filter(Boolean).length} words
-            </span>
-          </div>
         </div>
 
-        {/* Voice selector */}
-        <div className="glass rounded-[24px] p-5">
-          <label className="text-xs font-bold uppercase tracking-[2px] text-slate-400 block mb-3">
-            Voice Style
-          </label>
-          <div className="space-y-2">
-            {VOICES.map((v) => (
-              <motion.button
-                key={v.id}
-                onClick={() => setVoice(v.id)}
-                whileTap={{ scale: 0.98 }}
-                className={`w-full text-left px-4 py-3 rounded-2xl flex items-center justify-between transition-all ${
-                  voice === v.id
-                    ? "glass-gold border-[#C9A042]/40"
-                    : "bg-[#09090B]/40 border border-[#27272A] hover:border-[#27272A]"
-                }`}
-              >
-                <span className="text-sm font-semibold text-[#FAFAFA]">
-                  {v.label}
-                </span>
-                {voice === v.id && (
-                  <motion.div
-                    layoutId="voiceCheck"
-                    className="w-4 h-4 rounded-full bg-[#C9A042]"
-                  />
-                )}
-              </motion.button>
-            ))}
+        {/* Mood & Tempo selector */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="glass rounded-[32px] p-6">
+            <label className="text-[10px] font-bold uppercase tracking-[2px] text-slate-500 block mb-4">
+              Mood
+            </label>
+            <select
+              value={mood}
+              onChange={(e) => setMood(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-[#FAFAFA] focus:outline-none"
+            >
+              {["Peaceful", "Joyful", "Intense", "Reflective", "Calm"].map(
+                (m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ),
+              )}
+            </select>
+          </div>
+          <div className="glass rounded-[32px] p-6">
+            <label className="text-[10px] font-bold uppercase tracking-[2px] text-slate-500 block mb-4">
+              Tempo
+            </label>
+            <select
+              value={tempo}
+              onChange={(e) => setTempo(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-[#FAFAFA] focus:outline-none"
+            >
+              {["Slow", "Moderate", "Fast"].map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -210,106 +326,72 @@ export default function GeneratePage() {
         <motion.button
           onClick={handleGenerate}
           disabled={loading || !text.trim()}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
-          className="w-full btn-gold text-base py-5 rounded-2xl disabled:opacity-40 disabled:cursor-not-allowed"
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full btn-gold h-20 rounded-[28px] text-lg disabled:opacity-40"
         >
-          {loading ? (
-            <>
-              <Loader2 className="animate-spin" size={20} /> Weaving your
-              melody...
-            </>
-          ) : (
-            <>
-              <Wand2 size={20} /> Generate Ambient Worship
-            </>
-          )}
+          <div className="flex items-center gap-3">
+            {loading ? (
+              <Loader2 className="animate-spin" size={24} />
+            ) : (
+              <Sparkles size={24} />
+            )}
+            <span className="font-serif">
+              {loading ? status : "Ignite the Word"}
+            </span>
+          </div>
         </motion.button>
 
         {error && (
-          <p className="text-red-400 text-sm text-center bg-red-500/10 rounded-2xl py-3 px-4">
-            {error}
-          </p>
+          <p className="text-red-400 text-xs font-bold text-center">{error}</p>
         )}
 
-        {/* Audio player */}
+        {/* Result Card */}
         <AnimatePresence>
-          {audioUrl && (
+          {lastGenerated && (
             <motion.div
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              className="glass-gold rounded-[24px] p-6 flex flex-col items-center gap-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="glass-gold rounded-[40px] p-8 mt-12 flex flex-col items-center gap-6"
             >
-              {/* Waveform viz */}
-              <div className="flex items-end gap-[3px] h-12 w-full justify-center">
-                {Array.from({ length: 40 }).map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="w-1 rounded-full bg-[#C9A042]"
-                    style={{ minHeight: 3 }}
-                    animate={
-                      isPlaying
-                        ? {
-                            height: [
-                              `${4 + Math.sin(i * 0.7) * 20 + 8}px`,
-                              `${4 + Math.sin(i * 0.7 + 2) * 28 + 8}px`,
-                              `${4 + Math.sin(i * 0.7 + 4) * 16 + 8}px`,
-                            ],
-                          }
-                        : { height: "4px" }
-                    }
-                    transition={{
-                      duration: 1.2,
-                      repeat: Infinity,
-                      delay: i * 0.04,
-                      ease: "easeInOut",
-                    }}
-                  />
-                ))}
+              <div className="text-center">
+                <p className="text-[#C9A042] text-[10px] font-bold uppercase tracking-[6px] mb-2">
+                  Meditation Ready
+                </p>
+                <h3 className="text-[#FAFAFA] text-xl font-serif">
+                  {lastGenerated.title}
+                </h3>
               </div>
 
-              <p className="text-[#FAFAFA] text-sm font-semibold">
-                Your sound is ready ✨
-              </p>
-
-              <div className="flex gap-4">
+              <div className="flex items-center gap-4">
                 <motion.button
                   onClick={togglePlay}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="w-16 h-16 rounded-full flex items-center justify-center"
-                  style={{
-                    background: "linear-gradient(135deg, #C9A042, #E6D070)",
-                    boxShadow: "0 8px 24px rgba(201,160,66,0.4)",
-                  }}
+                  className="w-20 h-20 rounded-full flex items-center justify-center bg-[#C9A042]"
                 >
-                  {isPlaying ? (
-                    <Pause
-                      size={24}
-                      fill="#09090B"
-                      className="text-[#09090B]"
-                    />
+                  {isPlaying && isCurrentGenerated ? (
+                    <Pause size={32} fill="#09090B" />
                   ) : (
-                    <Play
-                      size={24}
-                      fill="#09090B"
-                      className="text-[#09090B] ml-1"
-                    />
+                    <Play size={32} fill="#09090B" className="ml-1" />
                   )}
                 </motion.button>
-                <motion.a
-                  href={audioUrl}
-                  download="zamir_worship.mp3"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="w-16 h-16 glass rounded-full flex items-center justify-center text-[#C9A042] border border-[#C9A042]/30"
+
+                <motion.button
+                  onClick={saveToProfile}
+                  className="w-14 h-14 rounded-full glass flex items-center justify-center text-[#C9A042]"
                 >
-                  <Download size={22} />
-                </motion.a>
+                  <CloudUpload size={20} />
+                </motion.button>
+
+                <motion.button
+                  onClick={() => handlePublish(lastGenerated)}
+                  className="w-14 h-14 rounded-full glass flex items-center justify-center text-[#C9A042]"
+                >
+                  <Globe size={20} />
+                </motion.button>
               </div>
-              <p className="text-slate-500 text-xs text-center">
-                Powered by ElevenLabs AI · Add to library to save
+
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest text-center">
+                {status || "Private Draft Created"}
               </p>
             </motion.div>
           )}

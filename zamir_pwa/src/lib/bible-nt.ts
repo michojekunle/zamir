@@ -39,4 +39,6 @@ export const VERSIONS = [
   { id: "niv", name: "NIV", label: "New International Version" },
   { id: "nkjv", name: "NKJV", label: "New King James Version" },
   { id: "tpt", name: "TPT", label: "The Passion Translation" },
+  { id: "kjv", name: "KJV", label: "King James Version" },
+  { id: "web", name: "WEB", label: "World English Bible" },
 ];
