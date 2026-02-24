@@ -6,57 +6,60 @@ import {
   useVideoConfig,
   interpolate,
   spring,
-  Easing,
   Audio,
   staticFile,
+  Img,
 } from "remotion";
 
+const BRAND_COLORS = {
+  black: "#09090B",
+  navy: "#18181B",
+  gold: "#C9A042",
+  lightGold: "#E6D070",
+  white: "#FAFAFA",
+  zinc: "#A1A1AA",
+};
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
-
-const easeInOutCubic = Easing.bezier(0.645, 0.045, 0.355, 1.0);
-
-function fadeIn(frame: number, start: number, duration: number) {
-  return interpolate(frame, [start, start + duration], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: easeInOutCubic,
-  });
-}
-
-function fadeOut(frame: number, start: number, duration: number) {
-  return interpolate(frame, [start, start + duration], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: easeInOutCubic,
-  });
-}
-
-function slideUp(frame: number, start: number, fps: number) {
+const fadeSlide = (frame: number, start: number, fps: number, slidePx = 40) => {
   const progress = spring({
     frame: frame - start,
     fps,
-    config: { damping: 14, stiffness: 80, mass: 0.8 },
+    config: { damping: 14, stiffness: 80, mass: 1 },
   });
-  const y = interpolate(progress, [0, 1], [60, 0]);
-  const opacity = interpolate(progress, [0, 1], [0, 1]);
-  return { y, opacity };
-}
+  return {
+    opacity: interpolate(progress, [0, 1], [0, 1], {
+      extrapolateRight: "clamp",
+    }),
+    y: interpolate(progress, [0, 1], [slidePx, 0]),
+  };
+};
 
-// ─── Particles ───────────────────────────────────────────────────────────────
+const fadeOutConfig = (frame: number, end: number) => {
+  return interpolate(frame, [end - 20, end], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+};
 
-function Particle({
-  x,
-  y,
-  size,
-  opacity,
+// ─── Abstract Background Blob ───────────────────────────────────────────────
+function AmbientBlob({
+  frame,
   color,
+  size,
+  startX,
+  startY,
+  speed = 0.01,
 }: {
-  x: number;
-  y: number;
-  size: number;
-  opacity: number;
+  frame: number;
   color: string;
+  size: number;
+  startX: number;
+  startY: number;
+  speed?: number;
 }) {
+  const x = startX + Math.sin(frame * speed) * 300;
+  const y = startY + Math.cos(frame * speed * 0.8) * 300;
   return (
     <div
       style={{
@@ -66,1270 +69,782 @@ function Particle({
         width: size,
         height: size,
         borderRadius: "50%",
-        backgroundColor: color,
-        opacity,
-        filter: `blur(${size * 0.3}px)`,
+        background: `radial-gradient(circle, ${color} 0%, transparent 60%)`,
+        filter: "blur(80px)",
+        transform: "translate(-50%, -50%)",
+        opacity: 0.15,
       }}
     />
   );
 }
 
-function ParticleField({
-  frame,
-  count = 30,
-}: {
-  frame: number;
-  count?: number;
-}) {
-  const particles = React.useMemo(() => {
-    return Array.from({ length: count }, (_, i) => {
-      const seed = i * 137.508;
-      return {
-        id: i,
-        baseX: (Math.sin(seed) * 0.5 + 0.5) * 1920,
-        baseY: (Math.cos(seed * 1.3) * 0.5 + 0.5) * 1080,
-        size: 4 + (i % 7) * 3,
-        speed: 0.3 + (i % 5) * 0.15,
-        phase: (i * 0.7) % (Math.PI * 2),
-        color: i % 3 === 0 ? "#3B82F6" : i % 3 === 1 ? "#8B5CF6" : "#06B6D4",
-      };
-    });
-  }, [count]);
-
-  return (
-    <>
-      {particles.map((p) => {
-        const t = frame * 0.02 + p.phase;
-        const x = p.baseX + Math.sin(t * p.speed) * 80;
-        const y = p.baseY + Math.cos(t * p.speed * 0.7) * 50;
-        const opacity = interpolate(
-          Math.sin(t * 0.5 + p.phase),
-          [-1, 1],
-          [0.1, 0.5],
-        );
-        return (
-          <Particle
-            key={p.id}
-            x={x}
-            y={y}
-            size={p.size}
-            opacity={opacity}
-            color={p.color}
-          />
-        );
-      })}
-    </>
-  );
-}
-
-// ─── Waveform Visualizer ─────────────────────────────────────────────────────
-
-function Waveform({
-  frame,
-  width = 800,
-  height = 120,
-}: {
-  frame: number;
-  width?: number;
-  height?: number;
-}) {
-  const bars = 64;
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 4,
-        width,
-        height,
-        justifyContent: "center",
-      }}
-    >
-      {Array.from({ length: bars }, (_, i) => {
-        const t = frame * 0.08;
-        const h = Math.abs(
-          Math.sin(t + i * 0.25) * 0.4 +
-            Math.sin(t * 1.3 + i * 0.4) * 0.35 +
-            Math.sin(t * 0.7 + i * 0.15) * 0.25,
-        );
-        const barHeight = Math.max(8, h * height);
-        const progress = i / bars;
-        const r = Math.round(interpolate(progress, [0, 0.5, 1], [59, 139, 6]));
-        const g = Math.round(
-          interpolate(progress, [0, 0.5, 1], [130, 92, 182]),
-        );
-        const b = Math.round(
-          interpolate(progress, [0, 0.5, 1], [246, 246, 212]),
-        );
-        return (
-          <div
-            key={i}
-            style={{
-              width: Math.max(1, (width - bars * 4) / bars),
-              height: barHeight,
-              borderRadius: 4,
-              background: `linear-gradient(180deg, rgb(${r},${g},${b}), rgba(${r},${g},${b},0.3))`,
-              boxShadow: `0 0 8px rgba(${r},${g},${b},0.6)`,
-              flexShrink: 0,
-            }}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── Glowing Orb ─────────────────────────────────────────────────────────────
-
-function GlowingOrb({
-  x,
-  y,
-  size,
-  color,
-  frame,
-  phaseOffset = 0,
-}: {
-  x: number;
-  y: number;
-  size: number;
-  color: string;
-  frame: number;
-  phaseOffset?: number;
-}) {
-  const pulse = Math.sin(frame * 0.04 + phaseOffset) * 0.15 + 1;
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: x - (size * pulse) / 2,
-        top: y - (size * pulse) / 2,
-        width: size * pulse,
-        height: size * pulse,
-        borderRadius: "50%",
-        background: `radial-gradient(circle, ${color}88 0%, ${color}22 50%, transparent 70%)`,
-        filter: `blur(${size * 0.15}px)`,
-      }}
-    />
-  );
-}
-
-// ─── Grid Lines ──────────────────────────────────────────────────────────────
-
-function GridLines({ opacity }: { opacity: number }) {
-  const cols = 12;
-  const rows = 7;
-  return (
-    <div style={{ position: "absolute", inset: 0, opacity }}>
-      {Array.from({ length: cols }, (_, i) => (
-        <div
-          key={`col-${i}`}
-          style={{
-            position: "absolute",
-            left: `${(i / cols) * 100}%`,
-            top: 0,
-            bottom: 0,
-            width: 1,
-            background:
-              "linear-gradient(to bottom, transparent, rgba(59,130,246,0.15), transparent)",
-          }}
-        />
-      ))}
-      {Array.from({ length: rows }, (_, i) => (
-        <div
-          key={`row-${i}`}
-          style={{
-            position: "absolute",
-            top: `${(i / rows) * 100}%`,
-            left: 0,
-            right: 0,
-            height: 1,
-            background:
-              "linear-gradient(to right, transparent, rgba(59,130,246,0.15), transparent)",
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// ─── SCENE 1: Opening — "Silence Speaks" ─────────────────────────────────────
-// Frames 0–89 (3s @ 30fps)
-
+// ─── Scene 1: Intro (0-150) ───────────────────────────────────────────────
 function Scene1({ frame }: { frame: number }) {
   const { fps } = useVideoConfig();
-  const totalFrames = 90;
-  const inFade = fadeIn(frame, 0, 20);
-  const outFade = fadeOut(frame, totalFrames - 20, 20);
-  const sceneOpacity = Math.min(inFade, outFade);
+  const localFrame = frame;
+  const outOpacity = fadeOutConfig(localFrame, 150);
 
-  const title = slideUp(frame, 15, fps);
-  const subtitle = slideUp(frame, 30, fps);
+  const t1 = fadeSlide(localFrame, 15, fps, 60);
+  const t2 = fadeSlide(localFrame, 35, fps, 60);
 
   return (
-    <AbsoluteFill style={{ background: "#09090B", opacity: sceneOpacity }}>
-      <GlowingOrb
-        x={960}
-        y={540}
-        size={600}
-        color="#1d4ed8"
-        frame={frame}
-        phaseOffset={0}
-      />
-      <GlowingOrb
-        x={400}
-        y={200}
-        size={250}
-        color="#7c3aed"
-        frame={frame}
-        phaseOffset={1.5}
-      />
-      <GlowingOrb
-        x={1520}
-        y={850}
-        size={200}
-        color="#0891b2"
-        frame={frame}
-        phaseOffset={3}
-      />
-      <ParticleField frame={frame} count={25} />
-      <GridLines opacity={0.4} />
-
-      <AbsoluteFill
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {/* Logo mark */}
-        <div
-          style={{
-            transform: `translateY(${title.y}px)`,
-            opacity: title.opacity,
-            marginBottom: 24,
-          }}
-        >
-          <img
-            src="/zamir_icon.png"
-            alt="Zamir Logo"
-            style={{
-              width: 60,
-              height: 60,
-              borderRadius: "20%",
-              boxShadow: "0 0 20px rgba(201,160,66,0.5)",
-            }}
-          />
-        </div>
-
-        <div
-          style={{
-            transform: `translateY(${title.y}px)`,
-            opacity: title.opacity,
-          }}
-        >
-          <h1
-            style={{
-              fontSize: 120,
-              fontWeight: 900,
-              color: "transparent",
-              background: "linear-gradient(135deg, #FAFAFA, #93c5fd, #E6D070)",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              fontFamily: "Fraunces, serif",
-              letterSpacing: "-4px",
-              margin: 0,
-              lineHeight: 1,
-              textShadow: "none",
-            }}
-          >
-            ZAMIR
-          </h1>
-        </div>
-
-        <div
-          style={{
-            transform: `translateY(${subtitle.y}px)`,
-            opacity: subtitle.opacity,
-            marginTop: 16,
-          }}
-        >
-          <p
-            style={{
-              fontSize: 28,
-              color: "#94a3b8",
-              fontFamily: "'Plus Jakarta Sans', Arial, sans-serif",
-              letterSpacing: 8,
-              margin: 0,
-              textTransform: "uppercase",
-            }}
-          >
-            Where Faith Meets Sound
-          </p>
-        </div>
-
-        {/* Animated divider */}
-        <div
-          style={{
-            marginTop: 48,
-            width: interpolate(frame, [40, 80], [0, 400], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            }),
-            height: 1,
-            background:
-              "linear-gradient(to right, transparent, #C9A042, #E6D070, transparent)",
-            opacity: subtitle.opacity,
-          }}
-        />
-      </AbsoluteFill>
-    </AbsoluteFill>
-  );
-}
-
-// ─── SCENE 2: "The Experience" — waveform + features ─────────────────────────
-// Frames 90–209 (4s @ 30fps)
-
-function Scene2({ frame }: { frame: number }) {
-  const { fps } = useVideoConfig();
-  const localFrame = frame - 90;
-  const totalFrames = 120;
-  const inFade = fadeIn(localFrame, 0, 25);
-  const outFade = fadeOut(localFrame, totalFrames - 25, 25);
-  const sceneOpacity = Math.min(inFade, outFade);
-
-  const headingSlide = slideUp(localFrame, 10, fps);
-  const wave1 = slideUp(localFrame, 30, fps);
-  const feat1 = slideUp(localFrame, 45, fps);
-  const feat2 = slideUp(localFrame, 60, fps);
-  const feat3 = slideUp(localFrame, 75, fps);
-
-  const features = [
-    {
-      icon: "🎵",
-      label: "AI-Generated Music",
-      desc: "Personalized tracks for every prayer and mood",
-    },
-    {
-      icon: "🕌",
-      label: "Sacred Playlists",
-      desc: "Curated by scholars and music directors",
-    },
-    {
-      icon: "📿",
-      label: "Daily Rituals",
-      desc: "Guided sessions for Fajr, Dhur, Asr, Maghrib & Isha",
-    },
-  ];
-  const featureAnims = [feat1, feat2, feat3];
-
-  return (
-    <AbsoluteFill style={{ background: "#030712", opacity: sceneOpacity }}>
-      {/* Background gradient sweep */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: `radial-gradient(ellipse at 50% 80%, rgba(59,130,246,0.12) 0%, transparent 60%)`,
-        }}
-      />
-      <GridLines opacity={0.25} />
-      <GlowingOrb
-        x={190}
-        y={960}
-        size={400}
-        color="#7c3aed"
-        frame={localFrame}
-        phaseOffset={2}
-      />
-      <GlowingOrb
-        x={1730}
-        y={120}
-        size={300}
-        color="#0891b2"
-        frame={localFrame}
-        phaseOffset={0.5}
-      />
-
-      <AbsoluteFill
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "flex-start",
-          paddingTop: 100,
-        }}
-      >
-        {/* Section heading */}
-        <div
-          style={{
-            transform: `translateY(${headingSlide.y}px)`,
-            opacity: headingSlide.opacity,
-            marginBottom: 60,
-          }}
-        >
-          <p
-            style={{
-              color: "#C9A042",
-              fontFamily: "monospace",
-              fontSize: 18,
-              letterSpacing: 6,
-              margin: "0 0 12px",
-              textAlign: "center",
-              textTransform: "uppercase",
-            }}
-          >
-            The Experience
-          </p>
-          <h2
-            style={{
-              fontSize: 72,
-              fontWeight: 800,
-              color: "white",
-              fontFamily: "Fraunces, serif",
-              margin: 0,
-              textAlign: "center",
-              lineHeight: 1.1,
-            }}
-          >
-            Sound Meets Spirit
-          </h2>
-        </div>
-
-        {/* Waveform */}
-        <div
-          style={{
-            transform: `translateY(${wave1.y}px)`,
-            opacity: wave1.opacity,
-            marginBottom: 60,
-          }}
-        >
-          <Waveform frame={localFrame} width={900} height={100} />
-        </div>
-
-        {/* Feature cards */}
-        <div style={{ display: "flex", gap: 32, justifyContent: "center" }}>
-          {features.map((f, i) => (
-            <div
-              key={f.label}
-              style={{
-                transform: `translateY(${featureAnims[i].y}px)`,
-                opacity: featureAnims[i].opacity,
-                width: 260,
-                padding: "32px 28px",
-                borderRadius: 16,
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(59,130,246,0.25)",
-                backdropFilter: "blur(8px)",
-              }}
-            >
-              <div style={{ fontSize: 40, marginBottom: 16 }}>{f.icon}</div>
-              <div
-                style={{
-                  fontSize: 20,
-                  fontWeight: 700,
-                  color: "white",
-                  marginBottom: 8,
-                  fontFamily: "'Plus Jakarta Sans', Arial, sans-serif",
-                }}
-              >
-                {f.label}
-              </div>
-              <div
-                style={{
-                  fontSize: 15,
-                  color: "#94a3b8",
-                  fontFamily: "'Plus Jakarta Sans', Arial, sans-serif",
-                  lineHeight: 1.5,
-                }}
-              >
-                {f.desc}
-              </div>
-            </div>
-          ))}
-        </div>
-      </AbsoluteFill>
-    </AbsoluteFill>
-  );
-}
-
-// ─── SCENE 3: "Cinematic Demo" — phone mockup + audio ─────────────────────────
-// Frames 210–329 (4s @ 30fps)
-
-function PhoneMockup({ frame }: { frame: number }) {
-  const localFrame = frame - 210;
-  const floatY = Math.sin(localFrame * 0.04) * 12;
-  const rotateX = Math.sin(localFrame * 0.025) * 3;
-  const rotateY = Math.cos(localFrame * 0.035) * 5;
-
-  return (
-    <div
+    <AbsoluteFill
       style={{
-        transform: `translateY(${floatY}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
-        transformStyle: "preserve-3d",
-        width: 300,
-        height: 620,
-        borderRadius: 40,
-        background: "linear-gradient(160deg, #253550, #0f172a)",
-        border: "2px solid rgba(255,255,255,0.12)",
-        boxShadow:
-          "0 40px 120px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1)",
-        display: "flex",
-        flexDirection: "column",
-        overflow: "hidden",
-        position: "relative",
+        opacity: outOpacity,
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
-      {/* Status bar */}
+      <AmbientBlob
+        frame={localFrame}
+        color={BRAND_COLORS.gold}
+        size={1200}
+        startX={1920 / 2}
+        startY={1080 / 2}
+        speed={0.01}
+      />
+
       <div
         style={{
-          padding: "16px 24px 8px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          transform: `translateY(${t1.y}px)`,
+          opacity: t1.opacity,
+          textAlign: "center",
         }}
       >
-        <span style={{ color: "white", fontSize: 13, fontWeight: 600 }}>
-          9:41
-        </span>
-        <div style={{ display: "flex", gap: 6 }}>
-          <div
-            style={{
-              width: 18,
-              height: 11,
-              border: "1.5px solid white",
-              borderRadius: 3,
-              position: "relative",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute",
-                inset: 2,
-                right: 5,
-                background: "white",
-                borderRadius: 1,
-              }}
-            />
-          </div>
-        </div>
+        <h1
+          style={{
+            fontSize: 130,
+            fontWeight: 800,
+            fontFamily: "Fraunces, serif",
+            color: BRAND_COLORS.white,
+            margin: 0,
+            letterSpacing: "-0.03em",
+          }}
+        >
+          Faith,
+        </h1>
+      </div>
+      <div
+        style={{
+          transform: `translateY(${t2.y}px)`,
+          opacity: t2.opacity,
+          textAlign: "center",
+          marginTop: 20,
+        }}
+      >
+        <h2
+          style={{
+            fontSize: 130,
+            fontWeight: 800,
+            fontFamily: "Fraunces, serif",
+            color: "transparent",
+            background: `linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.lightGold})`,
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            margin: 0,
+            letterSpacing: "-0.03em",
+          }}
+        >
+          in Your Pocket.
+        </h2>
+      </div>
+    </AbsoluteFill>
+  );
+}
+
+// ─── Scene 2: The Experience (150-330) ────────────────────────────────────
+function Scene2({ frame }: { frame: number }) {
+  const { fps } = useVideoConfig();
+  const localFrame = frame - 150;
+  const outOpacity = fadeOutConfig(localFrame, 180);
+
+  const textGroup = fadeSlide(localFrame, 10, fps, 50);
+  const cardGroup = fadeSlide(localFrame, 25, fps, 80);
+
+  return (
+    <AbsoluteFill
+      style={{
+        opacity: outOpacity,
+        flexDirection: "row",
+        padding: "0 150px",
+        alignItems: "center",
+        gap: 100,
+      }}
+    >
+      <AmbientBlob
+        frame={localFrame}
+        color={BRAND_COLORS.white}
+        size={800}
+        startX={400}
+        startY={800}
+        speed={0.015}
+      />
+
+      {/* Left Typography */}
+      <div
+        style={{
+          flex: 1,
+          transform: `translateY(${textGroup.y}px)`,
+          opacity: textGroup.opacity,
+        }}
+      >
+        <p
+          style={{
+            color: BRAND_COLORS.zinc,
+            fontSize: 24,
+            fontFamily: "Plus Jakarta Sans, sans-serif",
+            textTransform: "uppercase",
+            letterSpacing: 8,
+            margin: "0 0 24px 0",
+          }}
+        >
+          Deepen Your Walk
+        </p>
+        <h2
+          style={{
+            fontSize: 90,
+            fontWeight: 700,
+            color: BRAND_COLORS.white,
+            fontFamily: "Fraunces, serif",
+            lineHeight: 1.1,
+            margin: "0 0 40px 0",
+            letterSpacing: "-0.02em",
+          }}
+        >
+          Scripture
+          <br />
+          Transformed Into
+          <br />
+          Ambient Sound.
+        </h2>
+        <p
+          style={{
+            color: BRAND_COLORS.zinc,
+            fontSize: 28,
+            fontFamily: "Plus Jakarta Sans, sans-serif",
+            lineHeight: 1.5,
+            maxWidth: 600,
+          }}
+        >
+          Stream curated Christian music, guided prayer sessions, and peaceful
+          melodies wherever you go.
+        </p>
       </div>
 
-      {/* App content */}
-      <div style={{ flex: 1, padding: "8px 20px", overflow: "hidden" }}>
-        {/* Header */}
+      {/* Right Sleek Card */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          justifyContent: "center",
+          transform: `translateY(${cardGroup.y}px)`,
+          opacity: cardGroup.opacity,
+        }}
+      >
         <div
           style={{
-            color: "white",
-            fontWeight: 800,
-            fontSize: 22,
-            marginBottom: 4,
-            fontFamily: "Fraunces, serif",
-          }}
-        >
-          Zamir
-        </div>
-        <div style={{ color: "#64748b", fontSize: 13, marginBottom: 20 }}>
-          Good evening, Ali ✨
-        </div>
-
-        {/* Now playing card */}
-        <div
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(59,130,246,0.3), rgba(139,92,246,0.3))",
-            border: "1px solid rgba(59,130,246,0.4)",
-            borderRadius: 20,
-            padding: "20px 18px",
-            marginBottom: 16,
+            width: 500,
+            height: 500,
+            background: "rgba(24, 24, 27, 0.4)",
+            borderRadius: 40,
+            border: "1px solid rgba(255,255,255,0.05)",
+            backdropFilter: "blur(20px)",
+            display: "flex",
+            flexDirection: "column",
+            padding: 50,
+            position: "relative",
+            boxShadow: `0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)`,
           }}
         >
           <div
             style={{
+              width: 80,
+              height: 80,
+              borderRadius: 20,
+              background: `linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.lightGold})`,
               display: "flex",
               alignItems: "center",
-              gap: 12,
-              marginBottom: 16,
+              justifyContent: "center",
+              fontSize: 36,
+              marginBottom: 40,
+              boxShadow: `0 10px 30px rgba(201, 160, 66, 0.3)`,
             }}
           >
-            <div
-              style={{
-                width: 50,
-                height: 50,
-                borderRadius: 12,
-                background: "linear-gradient(135deg, #C9A042, #E6D070)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 22,
-              }}
-            >
-              🌙
-            </div>
-            <div>
-              <div style={{ color: "white", fontWeight: 700, fontSize: 15 }}>
-                Fajr Reflection
-              </div>
-              <div style={{ color: "#94a3b8", fontSize: 12 }}>
-                Morning Prayer Suite
-              </div>
-            </div>
+            🕊️
           </div>
-          {/* Mini waveform */}
+          <h3
+            style={{
+              fontSize: 36,
+              color: BRAND_COLORS.white,
+              fontFamily: "Fraunces, serif",
+              margin: "0 0 16px 0",
+            }}
+          >
+            Psalms 23 Serenity
+          </h3>
+          <p
+            style={{
+              fontSize: 20,
+              color: BRAND_COLORS.gold,
+              fontFamily: "Plus Jakarta Sans, sans-serif",
+              margin: "0 0 50px 0",
+              fontWeight: 600,
+            }}
+          >
+            Curated Worship Suite
+          </p>
+
+          {/* Minimal Waveform */}
           <div
             style={{
               display: "flex",
-              gap: 2,
+              gap: 6,
               alignItems: "center",
-              height: 30,
-              marginBottom: 12,
+              height: 60,
+              marginTop: "auto",
             }}
           >
-            {Array.from({ length: 24 }, (_, i) => {
-              const h = Math.abs(Math.sin(localFrame * 0.1 + i * 0.4)) * 24 + 4;
+            {Array.from({ length: 40 }, (_, i) => {
+              const h =
+                10 + Math.abs(Math.sin(localFrame * 0.05 + i * 0.2)) * 40;
               return (
                 <div
                   key={i}
                   style={{
                     flex: 1,
+                    background: BRAND_COLORS.zinc,
+                    borderRadius: 4,
                     height: h,
-                    background: "#C9A042",
-                    borderRadius: 2,
-                    opacity: 0.8,
+                    opacity: 0.7,
                   }}
                 />
               );
             })}
           </div>
-          <div style={{ display: "flex", justifyContent: "center", gap: 20 }}>
-            <div style={{ color: "#64748b", fontSize: 20 }}>⏮</div>
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                background: "#C9A042",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 16,
-                color: "white",
-              }}
-            >
-              ▶
-            </div>
-            <div style={{ color: "#64748b", fontSize: 20 }}>⏭</div>
-          </div>
         </div>
-
-        {/* Track list */}
-        {["Isaiah Serenity", "Bible Recitation", "Praise Harmonics"].map(
-          (track, i) => (
-            <div
-              key={track}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "10px 0",
-                borderBottom:
-                  i < 2 ? "1px solid rgba(255,255,255,0.05)" : "none",
-              }}
-            >
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: "rgba(59,130,246,0.2)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 16,
-                }}
-              >
-                {["⭐", "📖", "🌿"][i]}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ color: "white", fontSize: 13, fontWeight: 600 }}>
-                  {track}
-                </div>
-                <div style={{ color: "#64748b", fontSize: 11 }}>3:20</div>
-              </div>
-            </div>
-          ),
-        )}
       </div>
-
-      {/* Bottom nav */}
-      <div
-        style={{
-          padding: "12px 20px 24px",
-          display: "flex",
-          justifyContent: "space-around",
-          borderTop: "1px solid rgba(255,255,255,0.08)",
-        }}
-      >
-        {["🏠", "🎵", "📿", "👤"].map((icon, i) => (
-          <div key={i} style={{ fontSize: 20, opacity: i === 1 ? 1 : 0.4 }}>
-            {icon}
-          </div>
-        ))}
-      </div>
-    </div>
+    </AbsoluteFill>
   );
 }
 
+// ─── Scene 3: Original Languages (330-510) ────────────────────────────────
 function Scene3({ frame }: { frame: number }) {
   const { fps } = useVideoConfig();
-  const localFrame = frame - 210;
-  const totalFrames = 120;
-  const inFade = fadeIn(localFrame, 0, 25);
-  const outFade = fadeOut(localFrame, totalFrames - 25, 25);
-  const sceneOpacity = Math.min(inFade, outFade);
-
-  const textSlide = slideUp(localFrame, 15, fps);
-  const phoneSlide = slideUp(localFrame, 5, fps);
-
-  return (
-    <AbsoluteFill style={{ background: "#09090B", opacity: sceneOpacity }}>
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "radial-gradient(ellipse at 75% 50%, rgba(59,130,246,0.1) 0%, transparent 55%)",
-        }}
-      />
-      <GlowingOrb
-        x={1400}
-        y={540}
-        size={600}
-        color="#C9A042"
-        frame={localFrame}
-        phaseOffset={1}
-      />
-      <GlowingOrb
-        x={200}
-        y={800}
-        size={250}
-        color="#7c3aed"
-        frame={localFrame}
-        phaseOffset={2.5}
-      />
-      <GridLines opacity={0.2} />
-      <ParticleField frame={localFrame} count={15} />
-
-      <AbsoluteFill
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 120,
-        }}
-      >
-        {/* Left — Text */}
-        <div
-          style={{
-            transform: `translateY(${textSlide.y}px)`,
-            opacity: textSlide.opacity,
-            maxWidth: 500,
-          }}
-        >
-          <p
-            style={{
-              color: "#C9A042",
-              fontFamily: "monospace",
-              fontSize: 16,
-              letterSpacing: 6,
-              marginBottom: 16,
-              textTransform: "uppercase",
-            }}
-          >
-            App Preview
-          </p>
-          <h2
-            style={{
-              fontSize: 64,
-              fontWeight: 800,
-              color: "white",
-              fontFamily: "Fraunces, serif",
-              lineHeight: 1.1,
-              margin: "0 0 24px",
-            }}
-          >
-            Faith,
-            <br />
-            in Your
-            <br />
-            Pocket.
-          </h2>
-          <p
-            style={{
-              fontSize: 20,
-              color: "#94a3b8",
-              lineHeight: 1.7,
-              margin: "0 0 40px",
-              fontFamily: "'Plus Jakarta Sans', Arial, sans-serif",
-            }}
-          >
-            Stream curated Christian music, guided prayer sessions, and peaceful
-            ambients — wherever you are.
-          </p>
-          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-            {["iOS", "Android", "Web"].map((p) => (
-              <div
-                key={p}
-                style={{
-                  padding: "10px 20px",
-                  borderRadius: 40,
-                  border: "1px solid rgba(59,130,246,0.5)",
-                  color: "#93c5fd",
-                  fontSize: 15,
-                  fontFamily: "'Plus Jakarta Sans', Arial, sans-serif",
-                }}
-              >
-                {p}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Right — Phone */}
-        <div
-          style={{
-            transform: `translateY(${phoneSlide.y}px)`,
-            opacity: phoneSlide.opacity,
-            perspective: 1200,
-          }}
-        >
-          <PhoneMockup frame={frame} />
-        </div>
-      </AbsoluteFill>
-    </AbsoluteFill>
-  );
-}
-
-// ─── SCENE 4: Stats / Social Proof ───────────────────────────────────────────
-// Frames 330–419 (3s @ 30fps)
-
-function CountUp({
-  target,
-  frame,
-  startFrame,
-}: {
-  target: number;
-  frame: number;
-  startFrame: number;
-}) {
-  const progress = interpolate(frame - startFrame, [0, 60], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: Easing.out(Easing.cubic),
-  });
-  return Math.round(target * progress);
-}
-
-function Scene4({ frame }: { frame: number }) {
-  const { fps } = useVideoConfig();
   const localFrame = frame - 330;
-  const totalFrames = 90;
-  const inFade = fadeIn(localFrame, 0, 20);
-  const outFade = fadeOut(localFrame, totalFrames - 20, 20);
-  const sceneOpacity = Math.min(inFade, outFade);
+  const outOpacity = fadeOutConfig(localFrame, 180);
 
-  const headingSlide = slideUp(localFrame, 5, fps);
+  const textGroup = fadeSlide(localFrame, 10, fps, 50);
+  const visualGroup = fadeSlide(localFrame, 25, fps, 80);
 
-  const stats = [
-    { value: 50000, suffix: "+", label: "Active Listeners", icon: "👥" },
-    { value: 1200, suffix: "+", label: "Curated Tracks", icon: "🎵" },
-    { value: 40, suffix: "+", label: "Languages", icon: "🌍" },
-    { value: 4.9, suffix: "★", label: "App Store Rating", icon: "⭐" },
-  ];
+  // Greek to English Morph
+  const isGreek = localFrame % 80 < 40;
+  const displayedText = isGreek
+    ? "Εν αρχή ην ο Λόγος"
+    : "In the beginning was the Word";
+  const displayedLang = isGreek ? "Original Greek" : "Modern English";
 
   return (
-    <AbsoluteFill style={{ background: "#020817", opacity: sceneOpacity }}>
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.15) 0%, transparent 60%)",
-        }}
-      />
-      <GridLines opacity={0.3} />
-      <GlowingOrb
-        x={100}
-        y={100}
-        size={300}
-        color="#6366f1"
+    <AbsoluteFill
+      style={{
+        opacity: outOpacity,
+        flexDirection: "row-reverse",
+        padding: "0 150px",
+        alignItems: "center",
+        gap: 100,
+      }}
+    >
+      <AmbientBlob
         frame={localFrame}
-        phaseOffset={0}
-      />
-      <GlowingOrb
-        x={1820}
-        y={980}
-        size={350}
-        color="#C9A042"
-        frame={localFrame}
-        phaseOffset={3}
+        color={BRAND_COLORS.lightGold}
+        size={1000}
+        startX={1500}
+        startY={200}
+        speed={0.012}
       />
 
-      <AbsoluteFill
+      {/* Right Typography (Flex row reverse puts this on right) */}
+      <div
         style={{
+          flex: 1,
+          transform: `translateY(${textGroup.y}px)`,
+          opacity: textGroup.opacity,
+        }}
+      >
+        <p
+          style={{
+            color: BRAND_COLORS.gold,
+            fontSize: 24,
+            fontFamily: "Plus Jakarta Sans, sans-serif",
+            textTransform: "uppercase",
+            letterSpacing: 8,
+            margin: "0 0 24px 0",
+          }}
+        >
+          Rooted in Truth
+        </p>
+        <h2
+          style={{
+            fontSize: 90,
+            fontWeight: 700,
+            color: BRAND_COLORS.white,
+            fontFamily: "Fraunces, serif",
+            lineHeight: 1.1,
+            margin: "0 0 40px 0",
+            letterSpacing: "-0.02em",
+          }}
+        >
+          Original
+          <br />
+          Languages.
+        </h2>
+        <p
+          style={{
+            color: BRAND_COLORS.zinc,
+            fontSize: 28,
+            fontFamily: "Plus Jakarta Sans, sans-serif",
+            lineHeight: 1.5,
+            maxWidth: 600,
+          }}
+        >
+          Listen to scriptures exactly as they were written, with accurate
+          Hebrew and Greek pronunciations.
+        </p>
+      </div>
+
+      {/* Left Sleek Graphic */}
+      <div
+        style={{
+          flex: 1,
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
           justifyContent: "center",
+          transform: `translateY(${visualGroup.y}px)`,
+          opacity: visualGroup.opacity,
         }}
       >
         <div
           style={{
-            transform: `translateY(${headingSlide.y}px)`,
-            opacity: headingSlide.opacity,
-            marginBottom: 80,
-            textAlign: "center",
+            width: 600,
+            height: 350,
+            background: "rgba(9, 9, 11, 0.8)",
+            borderRadius: 30,
+            border: "1px solid rgba(255,255,255,0.1)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "relative",
+            boxShadow: `0 40px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(201, 160, 66, 0.2)`,
           }}
         >
           <p
-            style={{
-              color: "#6366f1",
-              fontFamily: "monospace",
-              fontSize: 18,
-              letterSpacing: 6,
-              margin: "0 0 12px",
-              textTransform: "uppercase",
-            }}
-          >
-            By the Numbers
-          </p>
-          <h2
-            style={{
-              fontSize: 64,
-              fontWeight: 800,
-              color: "white",
-              fontFamily: "Fraunces, serif",
-              margin: 0,
-            }}
-          >
-            Community of Faith
-          </h2>
-        </div>
-
-        <div style={{ display: "flex", gap: 48 }}>
-          {stats.map((stat, i) => {
-            const slide = slideUp(localFrame, 20 + i * 15, fps);
-            const isDecimal = stat.value < 10;
-            const displayValue = isDecimal
-              ? interpolate(
-                  localFrame - 20 - i * 15,
-                  [0, 60],
-                  [0, stat.value as number],
-                  {
-                    extrapolateLeft: "clamp",
-                    extrapolateRight: "clamp",
-                    easing: Easing.out(Easing.cubic),
-                  },
-                ).toFixed(1)
-              : CountUp({
-                  target: stat.value as number,
-                  frame: localFrame,
-                  startFrame: 20 + i * 15,
-                });
-
-            return (
-              <div
-                key={stat.label}
-                style={{
-                  transform: `translateY(${slide.y}px)`,
-                  opacity: slide.opacity,
-                  textAlign: "center",
-                  width: 220,
-                  padding: "40px 32px",
-                  borderRadius: 24,
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(99,102,241,0.25)",
-                }}
-              >
-                <div style={{ fontSize: 40, marginBottom: 12 }}>
-                  {stat.icon}
-                </div>
-                <div
-                  style={{
-                    fontSize: 64,
-                    fontWeight: 900,
-                    color: "transparent",
-                    background: "linear-gradient(135deg, #a78bfa, #60a5fa)",
-                    WebkitBackgroundClip: "text",
-                    backgroundClip: "text",
-                    fontFamily: "Fraunces, serif",
-                    lineHeight: 1,
-                    marginBottom: 12,
-                  }}
-                >
-                  {displayValue}
-                  {stat.suffix}
-                </div>
-                <div
-                  style={{
-                    color: "#64748b",
-                    fontSize: 16,
-                    fontFamily: "'Plus Jakarta Sans', Arial, sans-serif",
-                  }}
-                >
-                  {stat.label}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </AbsoluteFill>
-    </AbsoluteFill>
-  );
-}
-
-// ─── SCENE 5: CTA — Download Now ──────────────────────────────────────────────
-// Frames 420–509 (3s @ 30fps)
-
-function Scene5({ frame }: { frame: number }) {
-  const { fps } = useVideoConfig();
-  const localFrame = frame - 420;
-  const totalFrames = 90;
-  const inFade = fadeIn(localFrame, 0, 25);
-  const outFade = fadeOut(localFrame, totalFrames - 15, 15);
-  const sceneOpacity = Math.min(inFade, outFade);
-
-  const mainSlide = slideUp(localFrame, 10, fps);
-  const subtitleSlide = slideUp(localFrame, 25, fps);
-  const ctaSlide = slideUp(localFrame, 40, fps);
-
-  return (
-    <AbsoluteFill style={{ background: "#0a1120", opacity: sceneOpacity }}>
-      {/* Concentric ripples */}
-      {[0, 20, 40].map((offset) => {
-        const phase = (localFrame + offset) % 60;
-        const scale = interpolate(phase, [0, 60], [1, 3]);
-        const ripOp = interpolate(phase, [0, 60], [0.4, 0]);
-        return (
-          <div
-            key={offset}
             style={{
               position: "absolute",
-              left: "50%",
-              top: "50%",
-              width: 300,
-              height: 300,
-              borderRadius: "50%",
-              border: "1px solid rgba(59,130,246,0.6)",
-              transform: `translate(-50%, -50%) scale(${scale})`,
-              opacity: ripOp,
-            }}
-          />
-        );
-      })}
-
-      <GlowingOrb
-        x={960}
-        y={540}
-        size={700}
-        color="#1d4ed8"
-        frame={localFrame}
-        phaseOffset={0}
-      />
-      <ParticleField frame={localFrame} count={35} />
-      <GridLines opacity={0.35} />
-
-      <AbsoluteFill
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            transform: `translateY(${mainSlide.y}px)`,
-            opacity: mainSlide.opacity,
-            textAlign: "center",
-            marginBottom: 20,
-          }}
-        >
-          <h1
-            style={{
-              fontSize: 100,
-              fontWeight: 900,
-              color: "transparent",
-              background: "linear-gradient(135deg, #FAFAFA, #93c5fd, #a78bfa)",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              fontFamily: "Fraunces, serif",
-              margin: 0,
-              letterSpacing: "-3px",
-              lineHeight: 1.05,
+              top: 30,
+              left: 40,
+              color: BRAND_COLORS.gold,
+              fontSize: 16,
+              fontFamily: "Plus Jakarta Sans",
+              letterSpacing: 2,
+              textTransform: "uppercase",
+              fontWeight: 600,
             }}
           >
-            Begin Your
-            <br />
-            Journey
+            {displayedLang}
+          </p>
+          <h1
+            style={{
+              fontSize: 48,
+              fontWeight: 500,
+              color: BRAND_COLORS.white,
+              fontFamily: isGreek ? "serif" : "Fraunces, serif",
+              textAlign: "center",
+              padding: "0 40px",
+              transition: "all 0.4s ease",
+            }}
+          >
+            {displayedText}
           </h1>
         </div>
+      </div>
+    </AbsoluteFill>
+  );
+}
 
+// ─── Scene 4: AI Audio Generation Demo (510-720) ──────────────────────────
+function Scene4({ frame }: { frame: number }) {
+  const { fps } = useVideoConfig();
+  const localFrame = frame - 510;
+  const outOpacity = fadeOutConfig(localFrame, 210);
+
+  const headerGroup = fadeSlide(localFrame, 10, fps, -50);
+  const coreGroup = fadeSlide(localFrame, 30, fps, 50);
+
+  return (
+    <AbsoluteFill
+      style={{
+        opacity: outOpacity,
+        justifyContent: "center",
+        alignItems: "center",
+        padding: "100px",
+      }}
+    >
+      <AmbientBlob
+        frame={localFrame}
+        color={"#7c3aed"}
+        size={900}
+        startX={960}
+        startY={540}
+        speed={0.02}
+      />
+
+      <div
+        style={{
+          transform: `translateY(${headerGroup.y}px)`,
+          opacity: headerGroup.opacity,
+          textAlign: "center",
+          marginBottom: 80,
+        }}
+      >
+        <h2
+          style={{
+            fontSize: 72,
+            fontWeight: 700,
+            color: BRAND_COLORS.white,
+            fontFamily: "Fraunces, serif",
+            margin: "0 0 20px 0",
+          }}
+        >
+          Personalized AI Soundscapes
+        </h2>
+        <p
+          style={{
+            color: BRAND_COLORS.zinc,
+            fontSize: 28,
+            fontFamily: "Plus Jakarta Sans, sans-serif",
+          }}
+        >
+          Tune the scriptures to your exact study, sleep, or worship mood.
+        </p>
+      </div>
+
+      <div
+        style={{
+          transform: `translateY(${coreGroup.y}px)`,
+          opacity: coreGroup.opacity,
+          display: "flex",
+          width: "100%",
+          maxWidth: 1200,
+          gap: 40,
+        }}
+      >
+        {/* Mock Prompt Input */}
         <div
           style={{
-            transform: `translateY(${subtitleSlide.y}px)`,
-            opacity: subtitleSlide.opacity,
-            textAlign: "center",
-            marginBottom: 56,
+            flex: 1,
+            background: "rgba(24,24,27,0.5)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 30,
+            padding: 40,
+            backdropFilter: "blur(20px)",
           }}
         >
           <p
             style={{
-              fontSize: 24,
-              color: "#94a3b8",
-              fontFamily: "'Plus Jakarta Sans', Arial, sans-serif",
-              margin: 0,
-              letterSpacing: 1,
+              color: BRAND_COLORS.gold,
+              fontSize: 16,
+              fontFamily: "Plus Jakarta Sans",
+              letterSpacing: 2,
+              textTransform: "uppercase",
+              fontWeight: 600,
+              marginBottom: 20,
             }}
           >
-            Faith. Music. Community. — All in one app.
+            The Prompt
+          </p>
+          <p
+            style={{
+              color: BRAND_COLORS.white,
+              fontSize: 32,
+              fontFamily: "Fraunces, serif",
+              lineHeight: 1.4,
+            }}
+          >
+            "Create a cinematic, softly building ambient piano track backing an
+            English reading of Isaiah 40."
+          </p>
+          <div
+            style={{
+              marginTop: 40,
+              height: 6,
+              background: "rgba(255,255,255,0.1)",
+              borderRadius: 3,
+              overflow: "hidden",
+            }}
+          >
+            {/* Progress bar animation */}
+            <div
+              style={{
+                width: `${Math.min(100, (localFrame / 150) * 100)}%`,
+                height: "100%",
+                background: `linear-gradient(90deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.lightGold})`,
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Mock Output Output */}
+        <div
+          style={{
+            flex: 1,
+            background: "rgba(24,24,27,0.5)",
+            border: "1px solid rgba(201,160,66,0.3)",
+            borderRadius: 30,
+            padding: 40,
+            backdropFilter: "blur(20px)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            boxShadow:
+              localFrame > 50 ? "0 0 80px rgba(201,160,66,0.15)" : "none",
+            transition: "all 1s ease",
+          }}
+        >
+          <div
+            style={{
+              width: 100,
+              height: 100,
+              borderRadius: "50%",
+              background: `linear-gradient(135deg, ${BRAND_COLORS.gold}, ${BRAND_COLORS.lightGold})`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 40,
+              marginBottom: 30,
+              boxShadow: `0 10px 40px rgba(201, 160, 66, 0.4)`,
+              opacity: localFrame > 50 ? 1 : 0.3,
+              transform: localFrame > 50 ? "scale(1)" : "scale(0.8)",
+              transition: "all 1s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            }}
+          >
+            🎶
+          </div>
+          <h3
+            style={{
+              fontSize: 28,
+              color: BRAND_COLORS.white,
+              fontFamily: "Fraunces, serif",
+              margin: "0 0 10px 0",
+              opacity: localFrame > 50 ? 1 : 0.3,
+              transition: "all 1s ease",
+            }}
+          >
+            Isaiah 40 (Cinematic)
+          </h3>
+          <p
+            style={{
+              fontSize: 18,
+              color: BRAND_COLORS.lightGold,
+              fontFamily: "Plus Jakarta Sans, sans-serif",
+              margin: 0,
+              opacity: localFrame > 50 ? 1 : 0,
+              transition: "all 1s ease",
+            }}
+          >
+            ✨ AI Generated
           </p>
         </div>
+      </div>
+    </AbsoluteFill>
+  );
+}
 
-        <div
+// ─── Scene 5: Outro / CTA (720-850) ───────────────────────────────────────
+function Scene5({ frame }: { frame: number }) {
+  const { fps } = useVideoConfig();
+  const localFrame = frame - 720;
+
+  const mainSlide = fadeSlide(localFrame, 10, fps, 40);
+  const ctaSlide = fadeSlide(localFrame, 30, fps, 40);
+
+  return (
+    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+      <AmbientBlob
+        frame={localFrame}
+        color={BRAND_COLORS.gold}
+        size={1500}
+        startX={1920 / 2}
+        startY={1080 / 2}
+        speed={0.01}
+      />
+
+      <div
+        style={{
+          transform: `translateY(${mainSlide.y}px)`,
+          opacity: mainSlide.opacity,
+          textAlign: "center",
+          marginBottom: 60,
+        }}
+      >
+        <h1
           style={{
-            transform: `translateY(${ctaSlide.y}px)`,
-            opacity: ctaSlide.opacity,
-            display: "flex",
-            gap: 24,
+            fontSize: 110,
+            fontWeight: 800,
+            color: BRAND_COLORS.white,
+            fontFamily: "Fraunces, serif",
+            margin: 0,
+            letterSpacing: "-0.03em",
           }}
         >
-          <div
-            style={{
-              padding: "20px 48px",
-              borderRadius: 50,
-              background: "linear-gradient(135deg, #C9A042, #E6D070)",
-              color: "white",
-              fontSize: 20,
-              fontWeight: 700,
-              fontFamily: "'Plus Jakarta Sans', Arial, sans-serif",
-              boxShadow: "0 0 60px rgba(59,130,246,0.5)",
-              letterSpacing: 0.5,
-            }}
-          >
-            Download Free
-          </div>
-          <div
-            style={{
-              padding: "20px 48px",
-              borderRadius: 50,
-              border: "1.5px solid rgba(255,255,255,0.2)",
-              color: "white",
-              fontSize: 20,
-              fontFamily: "'Plus Jakarta Sans', Arial, sans-serif",
-              letterSpacing: 0.5,
-            }}
-          >
-            Learn More
-          </div>
-        </div>
-
-        {/* Bottom brand stamp */}
-        <div
+          Experience Zamir.
+        </h1>
+        <p
           style={{
-            position: "absolute",
-            bottom: 48,
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            opacity: ctaSlide.opacity,
+            color: BRAND_COLORS.zinc,
+            fontSize: 32,
+            fontFamily: "Plus Jakarta Sans, sans-serif",
+            marginTop: 20,
           }}
         >
-          <img
-            src="/zamir_icon.png"
-            alt="Zamir Logo"
-            style={{
-              width: 60,
-              height: 60,
-              borderRadius: "20%",
-              boxShadow: "0 0 20px rgba(201,160,66,0.5)",
-            }}
-          />
-          <span
-            style={{
-              color: "#475569",
-              fontFamily: "'Plus Jakarta Sans', Arial, sans-serif",
-              fontSize: 15,
-              letterSpacing: 2,
-            }}
-          >
-            ZAMIR · 2025
-          </span>
+          Available on iOS, Android, and Web.
+        </p>
+      </div>
+
+      <div
+        style={{
+          transform: `translateY(${ctaSlide.y}px)`,
+          opacity: ctaSlide.opacity,
+          display: "flex",
+          gap: 30,
+        }}
+      >
+        <div
+          style={{
+            padding: "28px 64px",
+            borderRadius: 60,
+            background: BRAND_COLORS.white,
+            color: BRAND_COLORS.black,
+            fontSize: 24,
+            fontWeight: 700,
+            fontFamily: "Plus Jakarta Sans, sans-serif",
+            boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
+          }}
+        >
+          Download Now
         </div>
-      </AbsoluteFill>
+        <div
+          style={{
+            padding: "28px 64px",
+            borderRadius: 60,
+            border: `2px solid rgba(255,255,255,0.2)`,
+            color: BRAND_COLORS.white,
+            fontSize: 24,
+            fontWeight: 600,
+            fontFamily: "Plus Jakarta Sans, sans-serif",
+          }}
+        >
+          Learn More
+        </div>
+      </div>
+
+      <div
+        style={{
+          position: "absolute",
+          bottom: 60,
+          opacity: ctaSlide.opacity,
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+        }}
+      >
+        <Img
+          src={staticFile("zamir_icon.png")}
+          style={{ width: 60, height: 60, borderRadius: "20%" }}
+        />
+        <span
+          style={{
+            color: BRAND_COLORS.zinc,
+            fontFamily: "Plus Jakarta Sans, sans-serif",
+            fontSize: 20,
+            letterSpacing: 4,
+            fontWeight: 500,
+          }}
+        >
+          ZAMIR.APP
+        </span>
+      </div>
     </AbsoluteFill>
   );
 }
 
 // ─── Root Composition ─────────────────────────────────────────────────────────
-// Total: 510 frames = 17 seconds @ 30fps
-
+// Total: 850 frames = 28.3 seconds @ 30fps
 export const MarketingVideo: React.FC = () => {
   return (
-    <AbsoluteFill style={{ background: "#09090B" }}>
-      {/* Scene 1: 0–89 */}
-      <Sequence from={0} durationInFrames={90} name="Opening">
+    <AbsoluteFill style={{ background: BRAND_COLORS.black }}>
+      <Sequence from={0} durationInFrames={150} name="Intro">
         <Scene1 frame={useCurrentFrame()} />
       </Sequence>
 
-      {/* Scene 2: 90–209 */}
-      <Sequence from={90} durationInFrames={120} name="Experience">
+      <Sequence from={150} durationInFrames={180} name="Feature 1">
         <Scene2 frame={useCurrentFrame()} />
       </Sequence>
 
-      {/* Scene 3: 210–329 */}
-      <Sequence from={210} durationInFrames={120} name="App Preview">
+      <Sequence from={330} durationInFrames={180} name="Feature 2">
         <Scene3 frame={useCurrentFrame()} />
       </Sequence>
 
-      {/* Scene 4: 330–419 */}
-      <Sequence from={330} durationInFrames={90} name="Stats">
+      <Sequence from={510} durationInFrames={210} name="Feature 3">
         <Scene4 frame={useCurrentFrame()} />
       </Sequence>
 
-      {/* Scene 5: 420–509 */}
-      <Sequence from={420} durationInFrames={90} name="CTA">
+      <Sequence from={720} durationInFrames={130} name="Outro">
         <Scene5 frame={useCurrentFrame()} />
       </Sequence>
-      {/* lively Ad Music track */}
+
+      {/* Background World Class Music Track */}
+      {/* Note: In production this plays the High Quality ambient_music.wav. */}
+      {/* We duck the main track during the AI generation showcase scene */}
       <Audio
-        src={staticFile("lively_ad.wav")}
+        src={staticFile("ambient_music_long.wav")}
         volume={(f) =>
-          interpolate(f, [0, 60, 480, 509], [0, 0.4, 0.4, 0], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          })
+          interpolate(
+            f,
+            [0, 60, 520, 550, 700, 720, 820, 850],
+            [0, 0.4, 0.4, 0.05, 0.05, 0.4, 0.4, 0],
+            {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            },
+          )
         }
       />
 
-      {/* Transition Sound Effects */}
-      <Sequence from={90}>
-        <Audio src={staticFile("whoosh.wav")} volume={0.4} />
+      {/* The AI Generated Melody Demonstration for Scene 4 */}
+      <Sequence from={540} durationInFrames={180}>
+        <Audio
+          src={staticFile("cinematic_ambient.wav")}
+          volume={(f) =>
+            interpolate(f, [0, 30, 150, 180], [0, 0.8, 0.8, 0], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            })
+          }
+        />
       </Sequence>
 
-      <Sequence from={210}>
+      {/* Transition Impacts */}
+      <Sequence from={150} durationInFrames={45}>
+        <Audio src={staticFile("whoosh.wav")} volume={0.3} />
+      </Sequence>
+      <Sequence from={330} durationInFrames={45}>
+        <Audio src={staticFile("whoosh.wav")} volume={0.3} />
+      </Sequence>
+      <Sequence from={510} durationInFrames={45}>
+        <Audio src={staticFile("whoosh.wav")} volume={0.3} />
+      </Sequence>
+      <Sequence from={720} durationInFrames={60}>
         <Audio src={staticFile("impact.wav")} volume={0.4} />
-      </Sequence>
-
-      <Sequence from={330}>
-        <Audio src={staticFile("whoosh.wav")} volume={0.4} />
-      </Sequence>
-
-      <Sequence from={420}>
-        <Audio src={staticFile("impact.wav")} volume={0.6} />
-        <Sequence from={15}>
-          <Audio src={staticFile("click.wav")} volume={0.3} />
-        </Sequence>
       </Sequence>
     </AbsoluteFill>
   );

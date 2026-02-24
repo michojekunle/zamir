@@ -2,7 +2,7 @@ import { registerRoot, Composition } from "remotion";
 import { MarketingVideo } from "./MarketingVideo";
 
 // 510 frames = 17 seconds at 30fps
-const DURATION = 510;
+const DURATION = 850;
 const FPS = 30;
 const WIDTH = 1920;
 const HEIGHT = 1080;

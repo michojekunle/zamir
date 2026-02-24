@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const DURATION_FRAMES = 510;
+const DURATION_FRAMES = 850;
 const FPS = 30;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
