@@ -15,19 +15,23 @@ import {
 } from "lucide-react";
 import { NEW_TESTAMENT, VERSIONS, BibleBook } from "@/lib/bible-nt";
 import { VerseActionModal } from "./BibleComponents";
+import { useSearchParams } from "next/navigation";
 
 type ViewState = "books" | "chapters" | "verses" | "search";
 
 export default function BiblePage() {
+  const searchParams = useSearchParams();
   const [view, setView] = useState<ViewState>("books");
   const [selectedBook, setSelectedBook] = useState<BibleBook | null>(null);
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null);
   const [selectedVersion, setSelectedVersion] = useState("niv");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeVerse, setActiveVerse] = useState<{
-    number: number;
-    text: string;
-  } | null>(null);
+  const [selectedVerses, setSelectedVerses] = useState<
+    {
+      number: number;
+      text: string;
+    }[]
+  >([]);
   const [verses, setVerses] = useState<{ number: number; text: string }[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -38,44 +42,33 @@ export default function BiblePage() {
     );
   }, [searchQuery]);
 
-  // Mock loading verses for the demo
+  // Load actual verses from the backend API
   const loadVerses = async (book: string, chapter: number, version: string) => {
     setLoading(true);
-    // Simulate API delay
-    await new Promise((r) => setTimeout(r, 600));
+    setSelectedVerses([]); // Clear selection when chapter changes
+    try {
+      const res = await fetch("/api/bible", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ book, chapter, version }),
+      });
 
-    // Some real sample verses for John 1 (TPT/NIV/NKJV mix/mock)
-    if (book === "John" && chapter === 1) {
-      const john1 = [
-        {
-          number: 1,
-          text: "In the beginning was the Word, and the Word was with God, and the Word was God.",
-        },
-        { number: 2, text: "He was with God in the beginning." },
-        {
-          number: 3,
-          text: "Through him all things were made; without him nothing was made that has been made.",
-        },
-        {
-          number: 4,
-          text: "In him was life, and that life was the light of all mankind.",
-        },
-        {
-          number: 5,
-          text: "The light shines in the darkness, and the darkness has not overcome it.",
-        },
-      ];
-      setVerses(john1);
-    } else {
-      // General mock for others
-      setVerses(
-        Array.from({ length: 20 }, (_, i) => ({
-          number: i + 1,
-          text: `This is verse ${i + 1} of ${book} chapter ${chapter} in the ${version.toUpperCase()} version. Zamir brings you closer to the Word through music and reflection.`,
-        })),
-      );
+      if (!res.ok) throw new Error("Failed to illuminate the Word.");
+
+      const data = await res.json();
+      setVerses(data.verses || []);
+
+      if (data.fallback) {
+        alert(
+          "Notice: Requested version (NIV/NKJV/TPT) is currently resting. Showing KJV translation instead.",
+        );
+      }
+    } catch (e: any) {
+      console.error(e);
+      setVerses([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -83,6 +76,29 @@ export default function BiblePage() {
       loadVerses(selectedBook.name, selectedChapter, selectedVersion);
     }
   }, [selectedBook, selectedChapter, selectedVersion]);
+
+  // Deep link handling
+  useEffect(() => {
+    const bookParam = searchParams.get("book");
+    const chapterParam = searchParams.get("chapter");
+    const versesParam = searchParams.get("verses");
+
+    if (bookParam && chapterParam) {
+      const book = NEW_TESTAMENT.find((b) => b.id === bookParam);
+      if (book) {
+        setSelectedBook(book);
+        const chapter = parseInt(chapterParam);
+        setSelectedChapter(chapter);
+        setView("verses");
+
+        if (versesParam && verses.length > 0) {
+          const vNumbers = versesParam.split(",").map((v) => parseInt(v));
+          const selected = verses.filter((v) => vNumbers.includes(v.number));
+          setSelectedVerses(selected);
+        }
+      }
+    }
+  }, [searchParams, verses]);
 
   const handleBookClick = (book: BibleBook) => {
     setSelectedBook(book);
@@ -95,9 +111,24 @@ export default function BiblePage() {
     window.scrollTo(0, 0);
   };
 
+  const toggleVerseSelection = (v: { number: number; text: string }) => {
+    setSelectedVerses((prev) => {
+      const isSelected = prev.some((sv) => sv.number === v.number);
+      if (isSelected) {
+        return prev.filter((sv) => sv.number !== v.number);
+      } else {
+        if (prev.length >= 5) return prev;
+        const newSelection = [...prev, v].sort((a, b) => a.number - b.number);
+        return newSelection;
+      }
+    });
+  };
+
   const goBack = () => {
-    if (view === "verses") setView("chapters");
-    else if (view === "chapters") setView("books");
+    if (view === "verses") {
+      setView("chapters");
+      setSelectedVerses([]);
+    } else if (view === "chapters") setView("books");
     else if (view === "search") setView("books");
   };
 
@@ -169,7 +200,26 @@ export default function BiblePage() {
               exit={{ opacity: 0, y: -10 }}
               className="space-y-4"
             >
-              <h2 className="text-[10px] font-bold uppercase tracking-[2px] text-slate-500 mb-2">
+              <div className="mb-8">
+                <div className="glass rounded-[32px] p-8 border border-[#C9A042]/20 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-[#C9A042] opacity-[0.03] blur-3xl" />
+                  <div className="flex items-center gap-2 mb-4">
+                    <Star size={14} className="text-[#C9A042]" fill="#C9A042" />
+                    <span className="text-[10px] font-bold text-[#C9A042] uppercase tracking-[3px]">
+                      Daily Bread
+                    </span>
+                  </div>
+                  <p className="text-3xl font-serif italic text-[#FAFAFA] mb-6 leading-[1.2]">
+                    "Every word of God is flawless; he is a shield to those who
+                    take refuge in him."
+                  </p>
+                  <p className="text-[10px] text-slate-500 font-bold tracking-[6px] uppercase">
+                    PROVERBS 30:5 · NIV
+                  </p>
+                </div>
+              </div>
+
+              <h2 className="text-[10px] font-bold uppercase tracking-[2px] text-slate-500 mb-2 px-1">
                 New Testament
               </h2>
               <div className="grid grid-cols-1 gap-3">
@@ -231,7 +281,7 @@ export default function BiblePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="max-w-3xl mx-auto space-y-8 pt-4"
+              className="max-w-3xl mx-auto space-y-4 pt-4"
             >
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 space-y-4">
@@ -241,24 +291,33 @@ export default function BiblePage() {
                   </p>
                 </div>
               ) : (
-                verses.map((v) => (
-                  <motion.div
-                    key={v.number}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    onClick={() => setActiveVerse(v)}
-                    className="relative group cursor-pointer"
-                  >
-                    <div className="flex gap-4">
-                      <span className="text-[#C9A042] font-serif font-bold text-sm mt-1 shrink-0">
-                        {v.number}
-                      </span>
-                      <p className="text-lg leading-relaxed text-slate-200 font-medium selection:bg-[#C9A042]/30 transition-colors group-hover:text-white">
-                        {v.text}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))
+                verses.map((v) => {
+                  const isSelected = selectedVerses.some(
+                    (sv) => sv.number === v.number,
+                  );
+                  return (
+                    <motion.div
+                      key={v.number}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      onClick={() => toggleVerseSelection(v)}
+                      className={`relative group cursor-pointer p-4 rounded-3xl transition-all ${isSelected ? "bg-[#C9A042]/10 border border-[#C9A042]/30 shadow-lg shadow-[#C9A042]/5" : "hover:bg-white/5"}`}
+                    >
+                      <div className="flex gap-4">
+                        <span
+                          className={`font-serif font-bold text-sm mt-1 shrink-0 ${isSelected ? "text-[#FAFAFA]" : "text-[#C9A042]"}`}
+                        >
+                          {v.number}
+                        </span>
+                        <p
+                          className={`text-xl leading-relaxed font-serif italic selection:bg-[#C9A042]/30 transition-colors ${isSelected ? "text-[#FAFAFA]" : "text-slate-200 group-hover:text-white"}`}
+                        >
+                          {v.text}
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })
               )}
 
               {!loading && (
@@ -274,47 +333,19 @@ export default function BiblePage() {
         </AnimatePresence>
       </div>
 
-      {/* Verse Action Modal */}
+      {/* Verse Action Bar (Floating when selection exists) */}
       <AnimatePresence>
-        {activeVerse && selectedBook && selectedChapter && (
+        {selectedVerses.length > 0 && selectedBook && selectedChapter && (
           <VerseActionModal
-            verse={{
-              book: selectedBook.name,
-              chapter: selectedChapter,
-              number: activeVerse.number,
-              text: activeVerse.text,
-              version: selectedVersion,
-            }}
-            onClose={() => setActiveVerse(null)}
+            verses={selectedVerses}
+            bookId={selectedBook.id}
+            bookName={selectedBook.name}
+            chapter={selectedChapter}
+            version={selectedVersion}
+            onClose={() => setSelectedVerses([])}
           />
         )}
       </AnimatePresence>
-
-      {/* Floating Verse of the Day (Only on Books view) */}
-      {view === "books" && !searchQuery && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="fixed bottom-28 left-5 right-5 z-20"
-        >
-          <div className="glass rounded-[32px] p-6 border border-[#C9A042]/20 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#C9A042] opacity-[0.03] blur-3xl" />
-            <div className="flex items-center gap-2 mb-3">
-              <Star size={14} className="text-[#C9A042]" />
-              <span className="text-[10px] font-bold text-[#C9A042] uppercase tracking-[2px]">
-                Verse of the Day
-              </span>
-            </div>
-            <p className="text-sm font-serif italic text-slate-200 mb-3 leading-relaxed">
-              "Every word of God is flawless; he is a shield to those who take
-              refuge in him."
-            </p>
-            <p className="text-[10px] text-slate-500 font-bold tracking-widest">
-              PROVERBS 30:5 · NIV
-            </p>
-          </div>
-        </motion.div>
-      )}
     </div>
   );
 }

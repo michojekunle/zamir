@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@200..800&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -10,7 +10,7 @@
     --color-cream: #FAFAFA;
 
     --font-sans: 'Plus Jakarta Sans', sans-serif;
-    --font-serif: 'Fraunces', serif;
+    --font-serif: 'DM Serif Display', serif;
 }
 
 @layer base {
@@ -30,7 +30,7 @@
     body {
         background-color: #09090B;
         color: #FAFAFA;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: var(--font-sans);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         overscroll-behavior-y: none;
@@ -39,7 +39,7 @@
     h1,
     h2,
     h3 {
-        font-family: 'Fraunces', serif;
+        font-family: var(--font-serif);
         letter-spacing: -0.02em;
     }
 
