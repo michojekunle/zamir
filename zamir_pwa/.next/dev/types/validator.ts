@@ -74,6 +74,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../../src/app/dashboard/generate-gemini/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/dashboard/generate-gemini">> = Specific
+  const handler = {} as typeof import("../../../src/app/dashboard/generate-gemini/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../../src/app/dashboard/generate/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/dashboard/generate">> = Specific
@@ -137,10 +146,28 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../../src/app/api/generate-gemini/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/generate-gemini">> = Specific
+  const handler = {} as typeof import("../../../src/app/api/generate-gemini/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../../src/app/api/generate/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/generate">> = Specific
   const handler = {} as typeof import("../../../src/app/api/generate/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../src/app/api/script-gemini/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/script-gemini">> = Specific
+  const handler = {} as typeof import("../../../src/app/api/script-gemini/route.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check
