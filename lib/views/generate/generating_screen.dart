@@ -69,7 +69,10 @@ class _GeneratingScreenState extends State<GeneratingScreen>
         genVM.generatedSong != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const GeneratedSongScreen()),
+          MaterialPageRoute(
+            builder: (_) => const GeneratedSongScreen(),
+            fullscreenDialog: true,
+          ),
         );
       });
     }
@@ -131,156 +134,182 @@ class _GeneratingScreenState extends State<GeneratingScreen>
           ),
         ),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Animated orb
-                AnimatedBuilder(
-                  animation: Listenable.merge([
-                    _pulseController,
-                    _rotateController,
-                  ]),
-                  builder: (context, child) {
-                    return Transform.rotate(
-                      angle: _rotateController.value * 2 * 3.14159,
-                      child: Transform.scale(
-                        scale: 1.0 + (_pulseController.value * 0.1),
-                        child: Container(
-                          width: 200,
-                          height: 200,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: SweepGradient(
-                              colors: [
-                                Theme.of(context).colorScheme.primary,
-                                Theme.of(context).colorScheme.secondary,
-                                Theme.of(
-                                  context,
-                                ).colorScheme.primary.withOpacity(0.5),
-                                Theme.of(context).colorScheme.primary,
-                              ],
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withOpacity(0.3),
-                                blurRadius: 40,
-                                spreadRadius: 10,
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Container(
-                              width: 160,
-                              height: 160,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Theme.of(
-                                  context,
-                                ).scaffoldBackgroundColor,
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  Icons.music_note,
-                                  size: 60,
-                                  color: Theme.of(context).colorScheme.primary,
+          child: Stack(
+            children: [
+              // Content
+              Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Animated orb
+                      AnimatedBuilder(
+                        animation: Listenable.merge([
+                          _pulseController,
+                          _rotateController,
+                        ]),
+                        builder: (context, child) {
+                          return Transform.rotate(
+                            angle: _rotateController.value * 2 * 3.14159,
+                            child: Transform.scale(
+                              scale: 1.0 + (_pulseController.value * 0.1),
+                              child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: SweepGradient(
+                                    colors: [
+                                      Theme.of(context).colorScheme.primary,
+                                      Theme.of(context).colorScheme.secondary,
+                                      Theme.of(context).colorScheme.primary
+                                          .withValues(alpha: 0.5),
+                                      Theme.of(context).colorScheme.primary,
+                                    ],
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.3),
+                                      blurRadius: 40,
+                                      spreadRadius: 10,
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Container(
+                                    width: 160,
+                                    height: 160,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Theme.of(
+                                        context,
+                                      ).scaffoldBackgroundColor,
+                                    ),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.music_note,
+                                        size: 60,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 60),
+
+                      // Animated waveform
+                      AnimatedWaveform(
+                        color: Theme.of(context).colorScheme.primary,
+                        height: 40,
+                        barCount: 30,
+                        isAnimating: true,
+                      ),
+                      const SizedBox(height: 40),
+
+                      // Status text
+                      Text(
+                        'Creating Your Melody',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    );
+                      const SizedBox(height: 12),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 500),
+                        child: Text(
+                          _statusMessages[_currentMessageIndex],
+                          key: ValueKey(_currentMessageIndex),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Progress indicator
+                      SizedBox(
+                        width: 200,
+                        child: Column(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: LinearProgressIndicator(
+                                value: genVM.progress,
+                                minHeight: 8,
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: 0.2),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '${(genVM.progress * 100).toInt()}%',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 48),
+
+                      // Scripture preview
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              genVM.scripture,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '"${genVM.verse}"',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontStyle: FontStyle.italic),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Cancel Button - Top Left
+              Positioned(
+                top: 8,
+                left: 8,
+                child: IconButton(
+                  icon: const Icon(Icons.close_rounded),
+                  onPressed: () {
+                    genVM.reset();
+                    Navigator.of(context).pop();
                   },
                 ),
-                const SizedBox(height: 60),
-
-                // Animated waveform
-                AnimatedWaveform(
-                  color: Theme.of(context).colorScheme.primary,
-                  height: 40,
-                  barCount: 30,
-                  isAnimating: true,
-                ),
-                const SizedBox(height: 40),
-
-                // Status text
-                Text(
-                  'Creating Your Melody',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 500),
-                  child: Text(
-                    _statusMessages[_currentMessageIndex],
-                    key: ValueKey(_currentMessageIndex),
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Progress indicator
-                SizedBox(
-                  width: 200,
-                  child: Column(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: LinearProgressIndicator(
-                          value: genVM.progress,
-                          minHeight: 8,
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.primary.withOpacity(0.2),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${(genVM.progress * 100).toInt()}%',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 48),
-
-                // Scripture preview
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        genVM.scripture,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '"${genVM.verse}"',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

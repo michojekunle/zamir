@@ -109,14 +109,14 @@ class _SplashScreenState extends State<SplashScreen>
             end: Alignment.bottomCenter,
             colors: isDark
                 ? [
-                    Theme.of(context).colorScheme.background,
                     Theme.of(context).colorScheme.surface,
-                    Theme.of(context).colorScheme.background,
+                    Theme.of(context).colorScheme.surface,
+                    Theme.of(context).colorScheme.surface,
                   ]
                 : [
-                    Theme.of(context).colorScheme.background,
-                    Theme.of(context).colorScheme.surfaceVariant,
-                    Theme.of(context).colorScheme.background,
+                    Theme.of(context).colorScheme.surface,
+                    Theme.of(context).colorScheme.surfaceContainerHighest,
+                    Theme.of(context).colorScheme.surface,
                   ],
           ),
         ),
@@ -147,7 +147,7 @@ class _SplashScreenState extends State<SplashScreen>
                           BoxShadow(
                             color: Theme.of(
                               context,
-                            ).colorScheme.primary.withOpacity(0.3),
+                            ).colorScheme.primary.withValues(alpha: 0.3),
                             blurRadius: 30,
                             offset: const Offset(0, 10),
                           ),
@@ -208,7 +208,7 @@ class _SplashScreenState extends State<SplashScreen>
                               margin: const EdgeInsets.symmetric(horizontal: 3),
                               decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.primary
-                                    .withOpacity(0.5 + value * 0.5),
+                                    .withValues(alpha: 0.5 + value * 0.5),
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             );

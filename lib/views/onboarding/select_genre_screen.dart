@@ -123,7 +123,7 @@ class _GenreChip extends StatelessWidget {
             color: isSelected
                 ? Theme.of(context).colorScheme.primary
                 : (isDark 
-                    ? Theme.of(context).colorScheme.outline.withOpacity(0.3)
+                    ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)
                     : Colors.grey.shade300),
             width: 1.5,
           ),

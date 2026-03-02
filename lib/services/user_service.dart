@@ -29,8 +29,9 @@ class UserService {
     if (favoriteGenres != null) userData['favoriteGenres'] = favoriteGenres;
     if (inspirations != null) userData['inspirations'] = inspirations;
     if (themes != null) userData['themes'] = themes;
-    if (onboardingComplete != null)
+    if (onboardingComplete != null) {
       userData['onboardingComplete'] = onboardingComplete;
+    }
 
     await _usersCollection.doc(uid).set(userData, SetOptions(merge: true));
   }

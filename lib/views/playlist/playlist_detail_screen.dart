@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../view_models/playlist_view_model.dart';
 import '../../view_models/music_view_model.dart';
 import '../../models/app_models.dart';
 import '../player/now_playing_screen.dart';
@@ -35,8 +34,12 @@ class PlaylistDetailScreen extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Theme.of(context).colorScheme.primary.withOpacity(0.15),
-                      Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                      Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.15),
+                      Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.05),
                       Theme.of(context).scaffoldBackgroundColor,
                     ],
                   ),
@@ -58,7 +61,7 @@ class PlaylistDetailScreen extends StatelessWidget {
                               BoxShadow(
                                 color: Theme.of(
                                   context,
-                                ).shadowColor.withOpacity(0.1),
+                                ).shadowColor.withValues(alpha: 0.1),
                                 blurRadius: 20,
                                 offset: const Offset(0, 8),
                               ),
@@ -82,9 +85,11 @@ class PlaylistDetailScreen extends StatelessWidget {
                           '${playlist.songCount} songs • ${_formatDuration(playlist.totalDuration)}',
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.color
+                                    ?.withValues(alpha: 0.7),
                               ),
                         ),
                       ],
@@ -158,7 +163,9 @@ class PlaylistDetailScreen extends StatelessWidget {
                     Icon(
                       Icons.music_off_rounded,
                       size: 80,
-                      color: Theme.of(context).disabledColor.withOpacity(0.3),
+                      color: Theme.of(
+                        context,
+                      ).disabledColor.withValues(alpha: 0.3),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -192,7 +199,9 @@ class PlaylistDetailScreen extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       color: isPlaying
-                          ? Theme.of(context).primaryColor.withOpacity(0.05)
+                          ? Theme.of(
+                              context,
+                            ).primaryColor.withValues(alpha: 0.05)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -212,12 +221,10 @@ class PlaylistDetailScreen extends StatelessWidget {
                                     Theme.of(context).colorScheme.secondary,
                                   ]
                                 : [
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.primary.withOpacity(0.1),
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.secondary.withOpacity(0.1),
+                                    Theme.of(context).colorScheme.primary
+                                        .withValues(alpha: 0.1),
+                                    Theme.of(context).colorScheme.secondary
+                                        .withValues(alpha: 0.1),
                                   ],
                           ),
                           borderRadius: BorderRadius.circular(12),
@@ -266,11 +273,9 @@ class PlaylistDetailScreen extends StatelessWidget {
                       ),
                       onTap: () {
                         musicVM.playSong(song);
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const NowPlayingScreen(),
-                          ),
-                        );
+                        Navigator.of(
+                          context,
+                        ).push(NowPlayingScreen.slideUpRoute());
                       },
                     ),
                   ),

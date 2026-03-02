@@ -49,7 +49,7 @@ class IntroPersonalizationScreen extends StatelessWidget {
                     BoxShadow(
                       color: Theme.of(
                         context,
-                      ).colorScheme.primary.withOpacity(0.3),
+                      ).colorScheme.primary.withValues(alpha: 0.3),
                       blurRadius: 30,
                       offset: const Offset(0, 10),
                     ),
@@ -63,7 +63,7 @@ class IntroPersonalizationScreen extends StatelessWidget {
                       right: 20,
                       child: Icon(
                         Icons.auto_awesome_rounded,
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         size: 24,
                       ),
                     ),
@@ -72,7 +72,7 @@ class IntroPersonalizationScreen extends StatelessWidget {
                       left: 30,
                       child: Icon(
                         Icons.auto_awesome_rounded,
-                        color: Colors.white.withOpacity(0.6),
+                        color: Colors.white.withValues(alpha: 0.6),
                         size: 16,
                       ),
                     ),
@@ -81,7 +81,7 @@ class IntroPersonalizationScreen extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -124,7 +124,7 @@ class IntroPersonalizationScreen extends StatelessWidget {
                   height: 1.6,
                   color: Theme.of(
                     context,
-                  ).textTheme.bodyLarge?.color?.withOpacity(0.7),
+                  ).textTheme.bodyLarge?.color?.withValues(alpha: 0.7),
                 ),
               ),
               const Spacer(),
@@ -138,7 +138,7 @@ class IntroPersonalizationScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Theme.of(
                         context,
-                      ).colorScheme.primary.withOpacity(0.3),
+                      ).colorScheme.primary.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -149,7 +149,7 @@ class IntroPersonalizationScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Theme.of(
                         context,
-                      ).colorScheme.primary.withOpacity(0.3),
+                      ).colorScheme.primary.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),

@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:zamir_app/view_models/auth_view_model.dart';
 import 'package:zamir_app/services/auth_service.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:zamir_app/services/user_service.dart';
 import '../helpers/test_helpers.mocks.dart';
 

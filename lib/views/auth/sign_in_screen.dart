@@ -70,7 +70,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       BoxShadow(
                         color: Theme.of(
                           context,
-                        ).colorScheme.primary.withOpacity(0.35),
+                        ).colorScheme.primary.withValues(alpha: 0.35),
                         blurRadius: 30,
                         offset: const Offset(0, 15),
                       ),
@@ -126,12 +126,12 @@ class _SignInScreenState extends State<SignInScreen> {
                   padding: const EdgeInsets.all(16),
                   margin: const EdgeInsets.only(bottom: 24),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: Theme.of(
                         context,
-                      ).colorScheme.error.withOpacity(0.3),
+                      ).colorScheme.error.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
@@ -191,7 +191,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     elevation: 4,
                     shadowColor: Theme.of(
                       context,
-                    ).primaryColor.withOpacity(0.4),
+                    ).primaryColor.withValues(alpha: 0.4),
                   ),
                 ),
               ),

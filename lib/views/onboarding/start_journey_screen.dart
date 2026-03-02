@@ -67,7 +67,7 @@ class StartJourneyScreen extends StatelessWidget {
                     elevation: 4,
                     shadowColor: Theme.of(
                       context,
-                    ).primaryColor.withOpacity(0.4),
+                    ).primaryColor.withValues(alpha: 0.4),
                   ),
                   child: const Text('Get Started'),
                 ),
@@ -90,7 +90,7 @@ class StartJourneyScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final iconBgColor = isDark
         ? Theme.of(context).colorScheme.surface
-        : Theme.of(context).colorScheme.primary.withOpacity(0.1);
+        : Theme.of(context).colorScheme.primary.withValues(alpha: 0.1);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -98,7 +98,7 @@ class StartJourneyScreen extends StatelessWidget {
         color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Theme.of(context).dividerColor.withOpacity(0.05),
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.05),
         ),
       ),
       child: Row(

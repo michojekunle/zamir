@@ -35,7 +35,7 @@ class DailyVerseCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -49,8 +49,8 @@ class DailyVerseCard extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                const Color(0xFFC9A042).withOpacity(0.8), // Soft Indigo overlay
-                const Color(0xFF09090B).withOpacity(0.9), // Dark Gunmetal fade
+                const Color(0xFFC9A042).withValues(alpha: 0.8), // Soft Indigo overlay
+                const Color(0xFF09090B).withValues(alpha: 0.9), // Dark Gunmetal fade
               ],
             ),
           ),
@@ -66,10 +66,10 @@ class DailyVerseCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -110,7 +110,7 @@ class DailyVerseCard extends StatelessWidget {
                 Text(
                   reference,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),

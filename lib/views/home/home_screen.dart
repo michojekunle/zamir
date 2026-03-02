@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../view_models/music_view_model.dart';
 import 'home_tab.dart';
 import 'library_tab.dart';
+import '../bible/bible_screen.dart';
 import '../settings/settings_screen.dart';
 import '../generate/ai_generation_screen.dart';
 import '../player/now_playing_screen.dart';
@@ -36,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
         currentScreen = const SizedBox();
         break;
       case 3:
-        currentScreen = const _BibleTabPlaceholder();
+        currentScreen = const BibleScreen();
         break;
       case 4:
         currentScreen =
@@ -76,11 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (musicVM.currentSong != null)
                   GestureDetector(
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const NowPlayingScreen(),
-                        ),
-                      );
+                      Navigator.of(
+                        context,
+                      ).push(NowPlayingScreen.slideUpRoute());
                     },
                     child: Container(
                       margin: const EdgeInsets.symmetric(
@@ -98,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           BoxShadow(
                             color: Theme.of(
                               context,
-                            ).shadowColor.withOpacity(0.08),
+                            ).shadowColor.withValues(alpha: 0.08),
                             blurRadius: 15,
                             offset: const Offset(0, 5),
                           ),
@@ -112,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             decoration: BoxDecoration(
                               color: Theme.of(
                                 context,
-                              ).colorScheme.primary.withOpacity(0.1),
+                              ).colorScheme.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Icon(
@@ -161,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Theme.of(context).cardTheme.color,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 20,
                         offset: const Offset(0, -5),
                       ),
@@ -192,6 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) => const AIGenerationScreen(),
+                                  fullscreenDialog: true,
                                 ),
                               );
                             },
@@ -205,9 +205,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary.withOpacity(0.4),
+                                    color: Theme.of(context).colorScheme.primary
+                                        .withValues(alpha: 0.4),
                                     blurRadius: 15,
                                     offset: const Offset(0, 8),
                                   ),
@@ -290,18 +289,6 @@ class _NavItem extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _BibleTabPlaceholder extends StatelessWidget {
-  const _BibleTabPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Bible')),
-      body: const Center(child: Text('Bible Tab Placeholder')),
     );
   }
 }

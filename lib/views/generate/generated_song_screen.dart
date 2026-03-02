@@ -122,7 +122,7 @@ class _GeneratedSongScreenState extends State<GeneratedSongScreen> {
             colors: isDark
                 ? [const Color(0xFF09090B), const Color(0xFF09090B)]
                 : [
-                    Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                     Colors.white,
                   ],
           ),
@@ -186,7 +186,7 @@ class _GeneratedSongScreenState extends State<GeneratedSongScreen> {
                             BoxShadow(
                               color: Theme.of(
                                 context,
-                              ).colorScheme.primary.withOpacity(0.3),
+                              ).colorScheme.primary.withValues(alpha: 0.3),
                               blurRadius: 30,
                               offset: const Offset(0, 15),
                             ),
@@ -196,7 +196,7 @@ class _GeneratedSongScreenState extends State<GeneratedSongScreen> {
                           alignment: Alignment.center,
                           children: [
                             AnimatedWaveform(
-                              color: Colors.white.withOpacity(0.3),
+                              color: Colors.white.withValues(alpha: 0.3),
                               height: 100,
                               barCount: 40,
                               isAnimating: _isPlaying,
@@ -362,7 +362,7 @@ class _GeneratedSongScreenState extends State<GeneratedSongScreen> {
                                 BoxShadow(
                                   color: Theme.of(
                                     context,
-                                  ).colorScheme.primary.withOpacity(0.3),
+                                  ).colorScheme.primary.withValues(alpha: 0.3),
                                   blurRadius: 20,
                                   offset: const Offset(0, 8),
                                 ),
@@ -408,6 +408,6 @@ class _GeneratedSongScreenState extends State<GeneratedSongScreen> {
   String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes;
     final seconds = duration.inSeconds % 60;
-    return '${minutes}:${seconds.toString().padLeft(2, '0')}';
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 }
