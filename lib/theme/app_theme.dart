@@ -36,7 +36,6 @@ class AppTheme {
       tertiary: Color(0xFF27272A), // Zinc-800
       surface: darkSurface,
       error: accentCoral,
-      background: darkBackground,
     ),
     cardTheme: CardThemeData(
       color: darkSurface,
@@ -55,7 +54,7 @@ class AppTheme {
         color: Colors.white,
         fontSize: 24,
         fontWeight: FontWeight.w600,
-        fontFamily: 'Fraunces', // Using the modern serif font
+        fontFamily: 'DM Serif Display', // Using the modern serif font
         letterSpacing: -0.5,
       ),
     ),
@@ -93,13 +92,13 @@ class AppTheme {
         fontWeight: FontWeight.w700,
         color: Colors.white,
         letterSpacing: -1.0,
-        fontFamily: 'Fraunces',
+        fontFamily: 'DM Serif Display',
       ),
       displayMedium: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w600,
         color: Colors.white,
-        fontFamily: 'Fraunces',
+        fontFamily: 'DM Serif Display',
         letterSpacing: -0.5,
       ),
       bodyLarge: TextStyle(
@@ -128,17 +127,16 @@ class AppTheme {
       secondary: secondaryTeal,
       tertiary: Color(0xFFE4E4E7), // Zinc-200
       surface: lightSurface,
-      background: lightBackground,
       error: accentCoral,
-      surfaceVariant: Color(0xFFF4F4F5),
+      surfaceContainerHighest: Color(0xFFF4F4F5),
     ),
     cardTheme: CardThemeData(
       color: lightSurface,
       elevation: 0,
-      shadowColor: primaryIndigo.withOpacity(0.05),
+      shadowColor: primaryIndigo.withValues(alpha: 0.05),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: Colors.black.withOpacity(0.05)),
+        side: BorderSide(color: Colors.black.withValues(alpha: 0.05)),
       ),
     ),
     appBarTheme: const AppBarTheme(
@@ -150,7 +148,7 @@ class AppTheme {
         color: textDark,
         fontSize: 24,
         fontWeight: FontWeight.w600,
-        fontFamily: 'Fraunces',
+        fontFamily: 'DM Serif Display',
         letterSpacing: -0.5,
       ),
     ),
@@ -159,7 +157,7 @@ class AppTheme {
         backgroundColor: primaryIndigo,
         foregroundColor: textDark,
         elevation: 0,
-        shadowColor: primaryIndigo.withOpacity(0.2),
+        shadowColor: primaryIndigo.withValues(alpha: 0.2),
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
@@ -171,17 +169,17 @@ class AppTheme {
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Colors.black.withOpacity(0.05)),
+        borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.05)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: Colors.black.withOpacity(0.05)),
+        borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.05)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: primaryIndigo, width: 1.5),
       ),
-      labelStyle: TextStyle(color: textDark.withOpacity(0.5)),
+      labelStyle: TextStyle(color: textDark.withValues(alpha: 0.5)),
     ),
     textTheme: const TextTheme(
       displayLarge: TextStyle(
@@ -189,13 +187,13 @@ class AppTheme {
         fontWeight: FontWeight.w700,
         color: textDark,
         letterSpacing: -1.0,
-        fontFamily: 'Fraunces',
+        fontFamily: 'DM Serif Display',
       ),
       displayMedium: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w600,
         color: textDark,
-        fontFamily: 'Fraunces',
+        fontFamily: 'DM Serif Display',
         letterSpacing: -0.5,
       ),
       bodyLarge: TextStyle(

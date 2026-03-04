@@ -5,8 +5,8 @@ class MusicViewModel extends ChangeNotifier {
   Song? _currentSong;
   bool _isPlaying = false;
   Duration _currentPosition = Duration.zero;
-  List<Song> _recentlyPlayed = [];
-  List<Song> _favorites = [];
+  final List<Song> _recentlyPlayed = [];
+  final List<Song> _favorites = [];
 
   Song? get currentSong => _currentSong;
   bool get isPlaying => _isPlaying;

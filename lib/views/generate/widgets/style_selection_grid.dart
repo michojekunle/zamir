@@ -51,13 +51,13 @@ class StyleSelectionGrid extends StatelessWidget {
               border: Border.all(
                 color: isSelected
                     ? const Color(0xFFC9A042)
-                    : Theme.of(context).dividerColor.withOpacity(0.1),
+                    : Theme.of(context).dividerColor.withValues(alpha: 0.1),
                 width: 2,
               ),
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: const Color(0xFFC9A042).withOpacity(0.3),
+                        color: const Color(0xFFC9A042).withValues(alpha: 0.3),
                         blurRadius: 15,
                         offset: const Offset(0, 8),
                       ),
@@ -75,8 +75,8 @@ class StyleSelectionGrid extends StatelessWidget {
                     icon,
                     size: 60,
                     color: isSelected
-                        ? Colors.white.withOpacity(0.2)
-                        : Theme.of(context).disabledColor.withOpacity(0.1),
+                        ? Colors.white.withValues(alpha: 0.2)
+                        : Theme.of(context).disabledColor.withValues(alpha: 0.1),
                   ),
                 ),
 
@@ -96,7 +96,7 @@ class StyleSelectionGrid extends StatelessWidget {
                               ? Colors.white
                               : Theme.of(
                                   context,
-                                ).disabledColor.withOpacity(0.3),
+                                ).disabledColor.withValues(alpha: 0.3),
                           width: isSelected ? 0 : 2,
                         ),
                       ),

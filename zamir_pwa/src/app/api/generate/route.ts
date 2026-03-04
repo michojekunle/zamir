@@ -48,11 +48,12 @@ export async function POST(req: Request) {
             ?.map((s: any) => s.lines.join(" "))
             .join("\n\n") || "Blessed be the Word.";
 
-        // Aria voice ID (Expressive, spiritual tone)
-        const voiceId = "9BWtsmCjSgl994ZpSGLO";
+        // Aria voice ID (Corrected Expressive, spiritual tone)
+        const primaryVoice = "9BWtsMINqrJLrRacOk9x";
+        const fallbackVoice = "21m00Tcm4TlvDq8ikWAM"; // Rachel (Universal Standard)
 
-        const ttsRes = await fetch(
-          `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+        let ttsRes = await fetch(
+          `https://api.elevenlabs.io/v1/text-to-speech/${primaryVoice}`,
           {
             method: "POST",
             headers: {
@@ -72,6 +73,29 @@ export async function POST(req: Request) {
             }),
           },
         );
+
+        // If primary voice still fails, try the universal fallback
+        if (!ttsRes.ok) {
+          console.warn(
+            `Primary voice ${primaryVoice} failed. Trying fallback...`,
+          );
+          ttsRes = await fetch(
+            `https://api.elevenlabs.io/v1/text-to-speech/${fallbackVoice}`,
+            {
+              method: "POST",
+              headers: {
+                Accept: "audio/mpeg",
+                "Content-Type": "application/json",
+                "xi-api-key": process.env.ELEVENLABS_API_KEY || "",
+              },
+              body: JSON.stringify({
+                text: scriptText,
+                model_id: "eleven_turbo_v2_5",
+                voice_settings: { stability: 0.65, similarity_boost: 0.8 },
+              }),
+            },
+          );
+        }
 
         if (ttsRes.ok) {
           const audioBuffer = await ttsRes.arrayBuffer();

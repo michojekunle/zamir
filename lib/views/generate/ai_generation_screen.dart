@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../view_models/generation_view_model.dart';
-import '../../utils/constants.dart';
 import 'generating_screen.dart';
 import 'widgets/style_selection_grid.dart';
 
@@ -79,13 +78,13 @@ class _AIGenerationScreenState extends State<AIGenerationScreen> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
                 ],
                 border: Border.all(
-                  color: Theme.of(context).dividerColor.withOpacity(0.1),
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
                 ),
               ),
               child: Column(
@@ -193,7 +192,7 @@ class _AIGenerationScreenState extends State<AIGenerationScreen> {
                   decoration: BoxDecoration(
                     color: Theme.of(
                       context,
-                    ).colorScheme.primary.withOpacity(0.1),
+                    ).colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -213,11 +212,11 @@ class _AIGenerationScreenState extends State<AIGenerationScreen> {
                 activeTrackColor: Theme.of(context).colorScheme.primary,
                 inactiveTrackColor: Theme.of(
                   context,
-                ).dividerColor.withOpacity(0.2),
+                ).dividerColor.withValues(alpha: 0.2),
                 thumbColor: Theme.of(context).colorScheme.primary,
                 overlayColor: Theme.of(
                   context,
-                ).colorScheme.primary.withOpacity(0.2),
+                ).colorScheme.primary.withValues(alpha: 0.2),
                 trackHeight: 6.0,
                 thumbShape: const RoundSliderThumbShape(
                   enabledThumbRadius: 10.0,
@@ -284,7 +283,10 @@ class _AIGenerationScreenState extends State<AIGenerationScreen> {
                   // Logic to generate
                   genVM.generate();
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const GeneratingScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const GeneratingScreen(),
+                      fullscreenDialog: true,
+                    ),
                   );
                 },
                 icon: const Icon(Icons.music_note_rounded),
@@ -299,7 +301,7 @@ class _AIGenerationScreenState extends State<AIGenerationScreen> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                   elevation: 4,
-                  shadowColor: const Color(0xFFC9A042).withOpacity(0.5),
+                  shadowColor: const Color(0xFFC9A042).withValues(alpha: 0.5),
                 ),
               ),
             ),
@@ -333,7 +335,7 @@ class _QuickChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: color ?? Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.withOpacity(0.2)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
         ),
         child: Text(
           label,

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../view_models/music_view_model.dart';
 import '../../view_models/auth_view_model.dart';
-import '../../view_models/generation_view_model.dart';
 import '../../utils/constants.dart';
-import '../settings/settings_screen.dart';
 import '../generate/ai_generation_screen.dart';
 import '../player/now_playing_screen.dart';
 import 'widgets/daily_verse_card.dart';
@@ -97,11 +95,7 @@ class HomeTab extends StatelessWidget {
                   // For now, just play a sample
                   if (musicVM.sampleSongs.isNotEmpty) {
                     musicVM.playSong(musicVM.sampleSongs.first);
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const NowPlayingScreen(),
-                      ),
-                    );
+                    Navigator.of(context).push(NowPlayingScreen.slideUpRoute());
                   }
                 },
               ),
@@ -113,6 +107,7 @@ class HomeTab extends StatelessWidget {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => const AIGenerationScreen(),
+                      fullscreenDialog: true,
                     ),
                   );
                 },
@@ -125,7 +120,9 @@ class HomeTab extends StatelessWidget {
                     color: Theme.of(context).cardTheme.color,
                     borderRadius: BorderRadius.circular(30),
                     border: Border.all(
-                      color: Theme.of(context).dividerColor.withOpacity(0.1),
+                      color: Theme.of(
+                        context,
+                      ).dividerColor.withValues(alpha: 0.1),
                     ),
                   ),
                   child: Row(
@@ -213,6 +210,7 @@ class HomeTab extends StatelessWidget {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => const AIGenerationScreen(),
+                              fullscreenDialog: true,
                             ),
                           );
                         },
@@ -236,7 +234,8 @@ class HomeTab extends StatelessWidget {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: 5,
-                  separatorBuilder: (_, __) => const SizedBox(width: 16),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 16),
                   itemBuilder: (context, index) {
                     return _CommunitySongCard(
                       title: index == 0 ? 'Sermon Mount' : 'Proverbs 3:5',
@@ -263,7 +262,8 @@ class HomeTab extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: 3,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
@@ -338,7 +338,7 @@ class _CommunitySongCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(

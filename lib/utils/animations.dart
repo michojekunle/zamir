@@ -108,8 +108,8 @@ class AnimatedLyricLine extends StatelessWidget {
       fontSize: 16,
       fontWeight: FontWeight.w400,
       color: isPast
-          ? Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5)
-          : Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+          ? Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.5)
+          : Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
     );
 
     return AnimatedDefaultTextStyle(
@@ -196,7 +196,7 @@ class _AnimatedWaveformState extends State<AnimatedWaveform>
                 width: 3,
                 height: widget.height * (0.2 + amplitude * 0.8),
                 decoration: BoxDecoration(
-                  color: widget.color.withOpacity(0.6 + amplitude * 0.4),
+                  color: widget.color.withValues(alpha: 0.6 + amplitude * 0.4),
                   borderRadius: BorderRadius.circular(2),
                 ),
               );

@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../services/suno_service.dart';
-import '../services/user_service.dart';
 
 class GenerationViewModel extends ChangeNotifier {
   final SunoService _sunoService;
-  final UserService _userService;
 
-  GenerationViewModel({SunoService? sunoService, UserService? userService})
-    : _sunoService = sunoService ?? SunoService(),
-      _userService = userService ?? UserService();
+  GenerationViewModel({SunoService? sunoService})
+    : _sunoService = sunoService ?? SunoService();
 
   // Generation state
   GenerationState _state = GenerationState.idle;

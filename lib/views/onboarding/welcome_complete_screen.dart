@@ -84,7 +84,7 @@ class _WelcomeCompleteScreenState extends State<WelcomeCompleteScreen>
             colors: isDark
                 ? [const Color(0xFF09090B), const Color(0xFF09090B)]
                 : [
-                    Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                     Colors.white,
                   ],
           ),
@@ -116,7 +116,7 @@ class _WelcomeCompleteScreenState extends State<WelcomeCompleteScreen>
                         BoxShadow(
                           color: Theme.of(
                             context,
-                          ).colorScheme.primary.withOpacity(0.3),
+                          ).colorScheme.primary.withValues(alpha: 0.3),
                           blurRadius: 30,
                           offset: const Offset(0, 10),
                         ),
@@ -255,7 +255,7 @@ class _WelcomeCompleteScreenState extends State<WelcomeCompleteScreen>
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(

@@ -7,15 +7,10 @@ import '../helpers/test_helpers.mocks.dart';
 void main() {
   late GenerationViewModel viewModel;
   late MockSunoService mockSunoService;
-  late MockUserService mockUserService;
 
   setUp(() {
     mockSunoService = MockSunoService();
-    mockUserService = MockUserService();
-    viewModel = GenerationViewModel(
-      sunoService: mockSunoService,
-      userService: mockUserService,
-    );
+    viewModel = GenerationViewModel(sunoService: mockSunoService);
   });
 
   group('generate', () {
