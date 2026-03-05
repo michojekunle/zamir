@@ -1,4 +1,4 @@
-# Zamir - The Word in Melody 🎵
+# Zamir - The Word in Melody
 
 A beautiful, faith-inspired ecosystem built to transform the Word of God into ambient melodies. This repository is a monorepo containing the core mobile application, the Progressive Web App (PWA), and the marketing website for Zamir.
 
@@ -10,8 +10,6 @@ zamir/
 ├── zamir_pwa/         # 🌐 Next.js Progressive Web App
 └── marketing_site/    # ✨ Vite + React Marketing Website
 ```
-
----
 
 ## 1. 📱 Zamir Mobile App (Flutter)
 
