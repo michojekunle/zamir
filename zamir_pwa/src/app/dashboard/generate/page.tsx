@@ -1,21 +1,19 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  AudioLines,
   Loader2,
-  Wand2,
   Pause,
   Play,
-  Download,
   ChevronDown,
   ChevronUp,
   BookMarked,
-  Music,
   Sparkles,
   CloudUpload,
   Globe,
+  Music,
+  RefreshCw,
 } from "lucide-react";
 import { useMusic } from "@/lib/MusicContext";
 import { db, auth, storage } from "@/lib/firebase";
@@ -26,6 +24,7 @@ import {
   incrementUserStat,
   trackEvent,
 } from "@/lib/AnalyticsService";
+import { useSearchParams } from "next/navigation";
 
 const PRESETS = [
   {
@@ -50,69 +49,98 @@ const PRESETS = [
   },
 ];
 
-import { useSearchParams } from "next/navigation";
+const MOODS = ["Peaceful", "Joyful", "Intense", "Reflective", "Calm"];
+const TEMPOS = ["Slow", "Moderate", "Fast"];
+
+// Progress steps for the multi-stage generation
+const PROGRESS_STEPS = [
+  { key: "script", label: "Crafting Song Structure...", icon: "✍️" },
+  { key: "submit", label: "Submitting to Suno AI...", icon: "🎵" },
+  { key: "generate", label: "Generating Your Song...", icon: "🎶" },
+  { key: "complete", label: "Song Ready!", icon: "✨" },
+];
 
 export default function GeneratePage() {
   const searchParams = useSearchParams();
   const [text, setText] = useState(searchParams.get("text") || PRESETS[0].text);
-  const [voice, setVoice] = useState("");
   const [mood, setMood] = useState("Peaceful");
   const [tempo, setTempo] = useState("Slow");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPresets, setShowPresets] = useState(false);
-  const [status, setStatus] = useState("");
+  const [currentStep, setCurrentStep] = useState(0);
   const [lastGenerated, setLastGenerated] = useState<any>(null);
+  const [generatedLyrics, setGeneratedLyrics] = useState<string>("");
+  const [generatedStyle, setGeneratedStyle] = useState<string>("");
+  const [status, setStatus] = useState("");
 
   const { playTrack, isPlaying, togglePlay, currentTrack } = useMusic();
 
   const handleGenerate = async () => {
     setLoading(true);
     setError("");
-    setStatus("Designing Composition Plan...");
+    setCurrentStep(0);
+    setLastGenerated(null);
 
     try {
-      // 1. Script Generation (Now returns { composition_plan })
+      // ── Stage 1: Script Generation (Gemini → Suno-optimized lyrics) ──
+      setCurrentStep(0);
       const scriptRes = await fetch("/api/script", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, mood, tempo }),
       });
 
-      if (!scriptRes.ok) throw new Error("Divine orchestration failed.");
-      const { composition_plan } = await scriptRes.json();
+      if (!scriptRes.ok) {
+        const errData = await scriptRes.json();
+        throw new Error(errData.error || "Failed to craft song structure.");
+      }
 
-      setStatus("Architecting the Soundscape...");
+      const { lyrics, style, title } = await scriptRes.json();
+      setGeneratedLyrics(lyrics);
+      setGeneratedStyle(style);
 
-      // 2. Music Generation (Authentic ElevenLabs Music)
-      const res = await fetch("/api/generate", {
+      // ── Stage 2: Submit & Generate via Suno ──
+      setCurrentStep(1);
+      const sunoRes = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ composition_plan }),
+        body: JSON.stringify({ lyrics, style, title }),
       });
 
-      if (!res.ok) {
-        const errData = await res.json();
-        if (res.status === 402) {
-          throw new Error(errData.detail || "Premium Subscription Required");
-        }
+      setCurrentStep(2);
+
+      if (!sunoRes.ok) {
+        const errData = await sunoRes.json();
         throw new Error(
-          errData.error ||
-            "The Divine Studio is at capacity. Try again shortly.",
+          errData.error || "Suno generation failed. Please try again.",
         );
       }
 
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const isAmbient = res.headers.get("X-Zamir-Type") === "ambient-reading";
+      const result = await sunoRes.json();
+
+      if (result.status !== "SUCCESS" || !result.tracks?.length) {
+        throw new Error("No audio tracks were returned. Please retry.");
+      }
+
+      setCurrentStep(3);
+
+      // Use the first track
+      const sunoTrack = result.tracks[0];
+      const audioUrl = sunoTrack.streamUrl || sunoTrack.audioUrl;
 
       const track = {
-        id: Math.random().toString(36).substr(2, 9),
-        title: text.slice(0, 30) + (text.length > 30 ? "..." : ""),
-        url: url,
-        artist: isAmbient ? "Zamir AI (Ambient)" : "Zamir AI",
-        mood: mood,
-        tempo: tempo,
+        id: "suno-" + (sunoTrack.id || Math.random().toString(36).substr(2, 9)),
+        title: sunoTrack.title || title || text.slice(0, 30),
+        url: audioUrl,
+        artist: "Zamir AI × Suno",
+        mood,
+        tempo,
+        style: sunoTrack.style || style,
+        lyrics: sunoTrack.lyrics || lyrics,
+        imageUrl: sunoTrack.imageUrl,
+        duration: sunoTrack.duration,
+        sunoTaskId: result.taskId,
       };
 
       setLastGenerated(track);
@@ -123,12 +151,11 @@ export default function GeneratePage() {
       if (auth.currentUser) {
         incrementUserStat(auth.currentUser.uid, "songsGenerated");
       }
-      trackEvent("song_generated", { mood, tempo });
+      trackEvent("song_generated_suno", { mood, tempo, style });
     } catch (e: any) {
       setError(e.message);
     } finally {
       setLoading(false);
-      setStatus("");
     }
   };
 
@@ -140,11 +167,10 @@ export default function GeneratePage() {
     try {
       setStatus("Uploading to cloud...");
 
-      // 1. Fetch the blob from the object URL
+      // Fetch the audio (works for both blob URLs and external URLs)
       const response = await fetch(lastGenerated.url);
       const blob = await response.blob();
 
-      // 2. Upload to Firebase Storage
       const storageRef = ref(
         storage,
         `users/${auth.currentUser.uid}/library/${lastGenerated.id}.mp3`,
@@ -152,7 +178,6 @@ export default function GeneratePage() {
       await uploadBytes(storageRef, blob);
       const downloadUrl = await getDownloadURL(storageRef);
 
-      // 3. Save metadata to Firestore
       await addDoc(collection(db, "users", auth.currentUser.uid, "library"), {
         ...lastGenerated,
         url: downloadUrl,
@@ -197,16 +222,21 @@ export default function GeneratePage() {
     <div className="min-h-screen pb-36 overflow-y-auto scrollbar-none bg-[#09090B]">
       {/* Header */}
       <div className="sticky top-0 z-20 px-5 pt-12 pb-5 bg-[#09090B]/90 backdrop-blur-xl border-b border-white/5">
-        <p className="text-[#C9A042] text-xs font-bold uppercase tracking-[4px] mb-1">
-          Divine Studio
-        </p>
+        <div className="flex items-center gap-2 mb-1">
+          <p className="text-[#C9A042] text-xs font-bold uppercase tracking-[4px]">
+            Divine Studio
+          </p>
+          <span className="px-2 py-0.5 rounded-full bg-[#C9A042]/10 text-[#C9A042] text-[9px] font-bold uppercase tracking-wider border border-[#C9A042]/20">
+            Suno AI
+          </span>
+        </div>
         <h1 className="text-2xl font-serif text-[#FAFAFA]">
-          Scripture into Sound
+          Scripture into Song
         </h1>
       </div>
 
       <div className="px-5 space-y-6 relative max-w-2xl mx-auto pt-6">
-        {/* Decorative elements */}
+        {/* Decorative glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-[#C9A042] rounded-full blur-[120px] opacity-[0.05] pointer-events-none" />
 
         {/* Info Card */}
@@ -217,16 +247,17 @@ export default function GeneratePage() {
         >
           <div className="flex items-start gap-4 text-slate-400">
             <div className="w-10 h-10 rounded-xl bg-[#C9A042]/10 flex items-center justify-center shrink-0 text-[#C9A042]">
-              <Sparkles size={18} />
+              <Music size={18} />
             </div>
             <div>
               <h3 className="text-sm font-bold text-[#FAFAFA] mb-1">
-                Vocal & Melody Synthesis
+                Full AI Song Generation
               </h3>
               <p className="text-xs leading-relaxed">
-                Zamir is evolving. We are currently integrating full
-                instrumentation and melodic vocals to turn scripture into the
-                songs of your soul.
+                Powered by <strong className="text-[#C9A042]">Suno AI</strong>,
+                Zamir transforms your scripture into a complete song — vocals,
+                melody, instrumentation, and all. Choose your mood and tempo,
+                then let the Spirit and Silicon create together.
               </p>
             </div>
           </div>
@@ -295,13 +326,11 @@ export default function GeneratePage() {
               onChange={(e) => setMood(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-[#FAFAFA] focus:outline-none"
             >
-              {["Peaceful", "Joyful", "Intense", "Reflective", "Calm"].map(
-                (m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ),
-              )}
+              {MOODS.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
             </select>
           </div>
           <div className="glass rounded-[32px] p-6">
@@ -313,7 +342,7 @@ export default function GeneratePage() {
               onChange={(e) => setTempo(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-[#FAFAFA] focus:outline-none"
             >
-              {["Slow", "Moderate", "Fast"].map((t) => (
+              {TEMPOS.map((t) => (
                 <option key={t} value={t}>
                   {t}
                 </option>
@@ -337,13 +366,86 @@ export default function GeneratePage() {
               <Sparkles size={24} />
             )}
             <span className="font-serif">
-              {loading ? status : "Ignite the Word"}
+              {loading
+                ? PROGRESS_STEPS[currentStep]?.label || "Generating..."
+                : "Ignite the Word"}
             </span>
           </div>
         </motion.button>
 
+        {/* Progress indicator */}
+        <AnimatePresence>
+          {loading && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="glass rounded-[24px] p-6"
+            >
+              <div className="space-y-3">
+                {PROGRESS_STEPS.map((step, i) => (
+                  <div
+                    key={step.key}
+                    className={`flex items-center gap-3 transition-all duration-500 ${
+                      i <= currentStep ? "opacity-100" : "opacity-30"
+                    }`}
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
+                        i < currentStep
+                          ? "bg-[#C9A042]/20 text-[#C9A042]"
+                          : i === currentStep
+                            ? "bg-[#C9A042] text-[#09090B] animate-pulse"
+                            : "bg-white/5 text-slate-600"
+                      }`}
+                    >
+                      {i < currentStep ? "✓" : step.icon}
+                    </div>
+                    <span
+                      className={`text-sm font-medium ${
+                        i === currentStep
+                          ? "text-[#FAFAFA]"
+                          : i < currentStep
+                            ? "text-[#C9A042]"
+                            : "text-slate-600"
+                      }`}
+                    >
+                      {step.label}
+                    </span>
+                    {i === currentStep && i > 0 && i < 3 && (
+                      <Loader2
+                        size={14}
+                        className="animate-spin text-[#C9A042] ml-auto"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+              <p className="text-[10px] text-slate-500 mt-4 text-center">
+                Suno AI generates high-quality songs — this typically takes
+                60-120 seconds.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Error */}
         {error && (
-          <p className="text-red-400 text-xs font-bold text-center">{error}</p>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="glass rounded-[20px] p-4 border border-red-500/20"
+          >
+            <p className="text-red-400 text-xs font-bold text-center">
+              {error}
+            </p>
+            <button
+              onClick={handleGenerate}
+              className="flex items-center gap-2 mx-auto mt-3 text-[10px] text-[#C9A042] font-bold uppercase tracking-wider"
+            >
+              <RefreshCw size={12} /> Try Again
+            </button>
+          </motion.div>
         )}
 
         {/* Result Card */}
@@ -352,20 +454,39 @@ export default function GeneratePage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass-gold rounded-[40px] p-8 mt-12 flex flex-col items-center gap-6"
+              className="glass-gold rounded-[40px] p-8 mt-6 flex flex-col items-center gap-6"
             >
+              {/* Album art from Suno */}
+              {lastGenerated.imageUrl && (
+                <motion.div
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  className="w-48 h-48 rounded-[28px] overflow-hidden shadow-2xl"
+                >
+                  <img
+                    src={lastGenerated.imageUrl}
+                    alt={lastGenerated.title}
+                    className="w-full h-full object-cover"
+                  />
+                </motion.div>
+              )}
+
               <div className="text-center">
                 <p className="text-[#C9A042] text-[10px] font-bold uppercase tracking-[6px] mb-2">
-                  Meditation Ready
+                  Song Ready
                 </p>
                 <h3 className="text-[#FAFAFA] text-xl font-serif">
                   {lastGenerated.title}
                 </h3>
+                <p className="text-slate-500 text-xs mt-1">
+                  {lastGenerated.artist}
+                </p>
               </div>
 
               <div className="flex items-center gap-4">
                 <motion.button
                   onClick={togglePlay}
+                  whileTap={{ scale: 0.9 }}
                   className="w-20 h-20 rounded-full flex items-center justify-center bg-[#C9A042]"
                 >
                   {isPlaying && isCurrentGenerated ? (
@@ -377,6 +498,7 @@ export default function GeneratePage() {
 
                 <motion.button
                   onClick={saveToProfile}
+                  whileTap={{ scale: 0.9 }}
                   className="w-14 h-14 rounded-full glass flex items-center justify-center text-[#C9A042]"
                 >
                   <CloudUpload size={20} />
@@ -384,6 +506,7 @@ export default function GeneratePage() {
 
                 <motion.button
                   onClick={() => handlePublish(lastGenerated)}
+                  whileTap={{ scale: 0.9 }}
                   className="w-14 h-14 rounded-full glass flex items-center justify-center text-[#C9A042]"
                 >
                   <Globe size={20} />
@@ -393,6 +516,18 @@ export default function GeneratePage() {
               <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest text-center">
                 {status || "Private Draft Created"}
               </p>
+
+              {/* Show generated lyrics */}
+              {generatedLyrics && (
+                <details className="w-full mt-2">
+                  <summary className="text-[10px] text-[#C9A042] font-bold uppercase tracking-wider cursor-pointer text-center">
+                    View Lyrics
+                  </summary>
+                  <pre className="mt-3 text-xs text-slate-400 whitespace-pre-wrap leading-relaxed bg-white/[0.02] rounded-2xl p-4 border border-white/5 max-h-60 overflow-y-auto">
+                    {generatedLyrics}
+                  </pre>
+                </details>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
