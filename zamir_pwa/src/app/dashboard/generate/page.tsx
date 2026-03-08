@@ -10,10 +10,14 @@ import {
   ChevronUp,
   BookMarked,
   Sparkles,
-  CloudUpload,
-  Globe,
+  Flame,
+  AudioLines,
+  UploadCloud,
+  Globe2,
   Music,
   RefreshCw,
+  Library,
+  ShieldAlert,
 } from "lucide-react";
 import { useMusic } from "@/lib/MusicContext";
 import { db, auth, storage } from "@/lib/firebase";
@@ -49,8 +53,25 @@ const PRESETS = [
   },
 ];
 
-const MOODS = ["Peaceful", "Joyful", "Intense", "Reflective", "Calm"];
-const TEMPOS = ["Slow", "Moderate", "Fast"];
+const MOODS = [
+  "Peaceful",
+  "Joyful",
+  "Intense",
+  "Reflective",
+  "Calm",
+  "Triumphant",
+  "Sorrowful",
+];
+const TEMPOS = ["Slow", "Moderate", "Fast", "Dynamic"];
+const GENRES = [
+  "Gospel",
+  "Worship",
+  "Contemporary Christian",
+  "Hymn",
+  "Choral",
+  "Acoustic",
+  "Cinematic",
+];
 
 // Progress steps for the multi-stage generation
 const PROGRESS_STEPS = [
@@ -64,13 +85,15 @@ export default function GeneratePage() {
   const searchParams = useSearchParams();
   const [text, setText] = useState(searchParams.get("text") || PRESETS[0].text);
   const [mood, setMood] = useState("Peaceful");
-  const [tempo, setTempo] = useState("Slow");
+  const [tempo, setTempo] = useState("Moderate");
+  const [genre, setGenre] = useState("Worship");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPresets, setShowPresets] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [lastGenerated, setLastGenerated] = useState<any>(null);
   const [generatedLyrics, setGeneratedLyrics] = useState<string>("");
+  const [gameScore, setGameScore] = useState(0);
   const [generatedStyle, setGeneratedStyle] = useState<string>("");
   const [status, setStatus] = useState("");
 
@@ -85,10 +108,11 @@ export default function GeneratePage() {
     try {
       // ── Stage 1: Script Generation (Gemini → Suno-optimized lyrics) ──
       setCurrentStep(0);
+      const combinedStyle = `${genre}, ${mood}, ${tempo}`;
       const scriptRes = await fetch("/api/script", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, mood, tempo }),
+        body: JSON.stringify({ text, mood: combinedStyle, tempo }),
       });
 
       if (!scriptRes.ok) {
@@ -136,6 +160,7 @@ export default function GeneratePage() {
         artist: "Zamir AI × Suno",
         mood,
         tempo,
+        genre,
         style: sunoTrack.style || style,
         lyrics: sunoTrack.lyrics || lyrics,
         imageUrl: sunoTrack.imageUrl,
@@ -156,6 +181,7 @@ export default function GeneratePage() {
       setError(e.message);
     } finally {
       setLoading(false);
+      setGameScore(0);
     }
   };
 
@@ -167,23 +193,42 @@ export default function GeneratePage() {
     try {
       setStatus("Uploading to cloud...");
 
-      // Fetch the audio (works for both blob URLs and external URLs)
-      const response = await fetch(lastGenerated.url);
-      const blob = await response.blob();
+      let finalUrl = lastGenerated.url;
 
-      const storageRef = ref(
-        storage,
-        `users/${auth.currentUser.uid}/library/${lastGenerated.id}.mp3`,
-      );
-      await uploadBytes(storageRef, blob);
-      const downloadUrl = await getDownloadURL(storageRef);
+      console.log(finalUrl, "Final URL");
 
+      try {
+        // Attempt to fetch and upload (might fail due to CORS on client side)
+        const response = await fetch(lastGenerated.url);
+        console.log(response, "Response");
+
+        const blob = await response.blob();
+        console.log(blob, "Blob");
+
+        const storageRef = ref(
+          storage,
+          `users/${auth.currentUser.uid}/library/${lastGenerated.id}.mp3`,
+        );
+        console.log(storageRef, "Storage Ref");
+        await uploadBytes(storageRef, blob);
+        finalUrl = await getDownloadURL(storageRef);
+        console.log(finalUrl, "Final URL after firebase storage upload.");
+      } catch (fetchErr) {
+        console.warn(
+          "Client-side direct upload blocked by CORS, falling back to Suno URL:",
+          fetchErr,
+        );
+        // We will default to the Suno URL directly in Firestore
+      }
+
+      console.log(finalUrl, "Final URL before firestore upload to the user library.");
       await addDoc(collection(db, "users", auth.currentUser.uid, "library"), {
         ...lastGenerated,
-        url: downloadUrl,
+        url: finalUrl,
         createdAt: serverTimestamp(),
         public: false,
       });
+      console.log(finalUrl, "Final URL after firestore upload to the user library.");
 
       setStatus("Saved to Library!");
       setTimeout(() => setStatus(""), 3000);
@@ -196,9 +241,13 @@ export default function GeneratePage() {
   };
 
   const handlePublish = async (track: any) => {
+    console.log(track, "Track");
     if (!auth.currentUser) return;
+    console.log(auth.currentUser, "Auth User");
     try {
+      console.log("Publishing for review...");
       setStatus("Publishing for review...");
+      console.log("Publishing for review...");
       await addDoc(collection(db, "moderation_queue"), {
         ...track,
         userId: auth.currentUser.uid,
@@ -206,7 +255,9 @@ export default function GeneratePage() {
         status: "pending",
         createdAt: serverTimestamp(),
       });
+      console.log("Published for Review!");
       setStatus("Published for Review!");
+      console.log("Published for Review!");
       setTimeout(() => setStatus(""), 3000);
     } catch (err) {
       console.error(err);
@@ -313,41 +364,87 @@ export default function GeneratePage() {
             placeholder="Paste your favorite bible verse here..."
             className="w-full bg-white/[0.02] border border-white/5 rounded-2xl p-5 text-[#FAFAFA] focus:outline-none focus:border-[#C9A042]/50 resize-none text-base leading-relaxed placeholder-slate-700 transition-all font-medium"
           />
+          <div className="flex items-start gap-2 mt-2 px-1">
+            <ShieldAlert size={12} className="text-slate-500 mt-0.5 shrink-0" />
+            <p className="text-[9px] text-slate-500 leading-tight">
+              By generating music, you agree that your input aligns with the
+              Bible. Our AI strictly verifies input before generation.
+              Submitting non-scriptural, inappropriate, or harmful text will
+              result in the generation being rejected and your account may be
+              flagged.
+            </p>
+          </div>
         </div>
 
-        {/* Mood & Tempo selector */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="glass rounded-[32px] p-6">
-            <label className="text-[10px] font-bold uppercase tracking-[2px] text-slate-500 block mb-4">
-              Mood
-            </label>
-            <select
-              value={mood}
-              onChange={(e) => setMood(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-[#FAFAFA] focus:outline-none"
-            >
-              {MOODS.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="glass rounded-[32px] p-6">
-            <label className="text-[10px] font-bold uppercase tracking-[2px] text-slate-500 block mb-4">
-              Tempo
-            </label>
-            <select
-              value={tempo}
-              onChange={(e) => setTempo(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-[#FAFAFA] focus:outline-none"
-            >
-              {TEMPOS.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
+        {/* Advanced Options: Genre, Mood, Tempo */}
+        <div className="space-y-4">
+          <div className="glass rounded-[32px] p-6 space-y-5">
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-[2px] text-slate-500 block mb-3">
+                Genre
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {GENRES.map((g) => (
+                  <button
+                    key={g}
+                    onClick={() => setGenre(g)}
+                    className={`px-4 py-2 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all duration-300 ${
+                      genre === g
+                        ? "bg-[#C9A042] text-[#09090B] shadow-[0_0_15px_rgba(201,160,66,0.3)]"
+                        : "bg-white/5 text-slate-400 hover:bg-white/10"
+                    }`}
+                  >
+                    {g}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="h-px w-full bg-white/5" />
+
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-[2px] text-slate-500 block mb-3">
+                Mood
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {MOODS.map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setMood(m)}
+                    className={`px-4 py-2 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all duration-300 ${
+                      mood === m
+                        ? "bg-[#C9A042] text-[#09090B] shadow-[0_0_15px_rgba(201,160,66,0.3)]"
+                        : "bg-white/5 text-slate-400 hover:bg-white/10"
+                    }`}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="h-px w-full bg-white/5" />
+
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-[2px] text-slate-500 block mb-3">
+                Tempo
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {TEMPOS.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTempo(t)}
+                    className={`px-4 py-2 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all duration-300 ${
+                      tempo === t
+                        ? "bg-[#C9A042] text-[#09090B] shadow-[0_0_15px_rgba(201,160,66,0.3)]"
+                        : "bg-white/5 text-slate-400 hover:bg-white/10"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -357,13 +454,14 @@ export default function GeneratePage() {
           disabled={loading || !text.trim()}
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full btn-gold h-20 rounded-[28px] text-lg disabled:opacity-40"
+          className="w-full btn-gold h-20 rounded-[28px] text-lg disabled:opacity-40 shadow-[0_0_40px_rgba(201,160,66,0.2)] flex items-center justify-center relative overflow-hidden"
         >
-          <div className="flex items-center gap-3">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
+          <div className="flex items-center gap-3 relative z-10">
             {loading ? (
               <Loader2 className="animate-spin" size={24} />
             ) : (
-              <Sparkles size={24} />
+              <Flame size={24} />
             )}
             <span className="font-serif">
               {loading
@@ -421,10 +519,53 @@ export default function GeneratePage() {
                   </div>
                 ))}
               </div>
-              <p className="text-[10px] text-slate-500 mt-4 text-center">
+              <p className="text-[10px] text-slate-500 mb-4 text-center">
                 Suno AI generates high-quality songs — this typically takes
                 60-120 seconds.
               </p>
+
+              {/* Waiting Mini-Game */}
+              <div className="mt-4 pt-4 border-t border-white/5 mx-auto max-w-sm">
+                <p className="text-[#C9A042] text-[10px] font-bold uppercase tracking-widest text-center mb-2">
+                  While you wait, tap the wandering notes!
+                </p>
+                <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 mb-3 px-2">
+                  <span>Score: {gameScore}</span>
+                  <span className="animate-pulse">Music brewing...</span>
+                </div>
+                <div className="relative w-full h-[120px] bg-black/40 rounded-[20px] overflow-hidden border border-white/5">
+                  {/* Floating interactive music notes */}
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ y: 150, x: Math.random() * 280 }}
+                      animate={{
+                        y: -50,
+                        x: Math.random() * 280,
+                      }}
+                      transition={{
+                        duration: 3 + Math.random() * 3,
+                        repeat: Infinity,
+                        ease: "linear",
+                        delay: Math.random() * 2,
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setGameScore((s) => s + 10);
+                        // Make it vanish temporarily
+                        (e.target as HTMLElement).style.opacity = "0";
+                        setTimeout(() => {
+                          if (e.target)
+                            (e.target as HTMLElement).style.opacity = "1";
+                        }, 2000);
+                      }}
+                      className="absolute w-8 h-8 rounded-full bg-[#C9A042] flex items-center justify-center cursor-pointer hover:scale-110 active:scale-90 transition-transform shadow-[0_0_15px_rgba(201,160,66,0.3)] select-none text-xs"
+                    >
+                      🎵
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -499,17 +640,21 @@ export default function GeneratePage() {
                 <motion.button
                   onClick={saveToProfile}
                   whileTap={{ scale: 0.9 }}
-                  className="w-14 h-14 rounded-full glass flex items-center justify-center text-[#C9A042]"
+                  className="w-14 h-14 rounded-full glass flex flex-col items-center justify-center text-[#C9A042] border border-[#C9A042]/20"
                 >
-                  <CloudUpload size={20} />
+                  <Library size={18} className="mb-0.5" />
+                  <span className="text-[7px] font-bold uppercase">Save</span>
                 </motion.button>
 
                 <motion.button
                   onClick={() => handlePublish(lastGenerated)}
                   whileTap={{ scale: 0.9 }}
-                  className="w-14 h-14 rounded-full glass flex items-center justify-center text-[#C9A042]"
+                  className="w-14 h-14 rounded-full glass flex flex-col items-center justify-center text-[#C9A042] border border-[#C9A042]/20"
                 >
-                  <Globe size={20} />
+                  <Globe2 size={18} className="mb-0.5" />
+                  <span className="text-[7px] font-bold uppercase">
+                    Publish
+                  </span>
                 </motion.button>
               </div>
 

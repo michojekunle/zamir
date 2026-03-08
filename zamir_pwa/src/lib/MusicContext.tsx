@@ -11,6 +11,13 @@ export interface Track {
   artist?: string;
   duration?: number;
   thumbnail?: string;
+  imageUrl?: string;
+  lyrics?: string;
+  mood?: string;
+  tempo?: string;
+  genre?: string;
+  style?: string;
+  sunoTaskId?: string;
 }
 
 interface MusicContextType {

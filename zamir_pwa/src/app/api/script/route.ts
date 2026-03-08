@@ -43,11 +43,15 @@ export async function POST(req: Request) {
 
     const prompt = `You are a talented Christian songwriting producer optimizing scripture for Suno AI music generation.
 
-SCRIPTURE: "${text}"
+SCRIPTURE TO VERIFY AND TRANSFORM: "${text}"
 USER MOOD: ${mood || "Peaceful"}
 USER TEMPO: ${tempo || "Moderate"}
 
 YOUR TASK:
+0. Verify the content. If the text is NOT a Bible verse, or contains inappropriate, secular, or non-scriptural content, you MUST reject it by returning exactly:
+{"error": "INVALID_CONTENT"}
+Otherwise, proceed to step 1.
+
 1. Transform the scripture into singable LYRICS. Make them poetic, rhythmic, and musical.
    - Add a [Verse] and [Chorus] structure using Suno metatags
    - You may paraphrase lightly for rhythm, but keep the scriptural meaning intact
@@ -82,6 +86,16 @@ OUTPUT FORMAT (strict JSON only, no markdown):
       const parsed = JSON.parse(cleanJson);
 
       // Validate the response
+      if (parsed.error === "INVALID_CONTENT") {
+        return NextResponse.json(
+          {
+            error:
+              "The provided text does not appear to be a valid Bible verse or scripture. Please enter scriptural content to generate a song.",
+          },
+          { status: 400 },
+        );
+      }
+
       if (!parsed.lyrics || !parsed.style || !parsed.title) {
         throw new Error("Incomplete response from Gemini");
       }

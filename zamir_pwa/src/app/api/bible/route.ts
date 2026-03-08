@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const genAI = new GoogleGenerativeAI(
+  process.env.GOOGLE_GENERATIVE_AI_API_KEY || "",
+);
 
 export async function POST(req: Request) {
   try {
@@ -34,41 +34,32 @@ export async function POST(req: Request) {
       console.warn("External Bible API failed, trying fallback...");
     }
 
-    // 2. Second Attempt: If the version isn't on the free API (like NIV/TPT), try OpenAI
-    // We use gpt-4o-mini here as it is significantly cheaper and faster
-    if (process.env.OPENAI_API_KEY) {
+    // 2. Second Attempt: If the version isn't on the free API (like NIV/TPT), try Gemini
+    // We use gemini-2.5-flash as it is fast and capable
+    if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       try {
         const prompt = `
-          Return the full text of ${book} Chapter ${chapter} in the ${version.toUpperCase()} translation.
-          Format the output as a JSON array of objects with "number" (integer) and "text" (string) keys.
-          Return ONLY THE JSON. Do not include any commentary.
+          You are a Bible scholar. Return the full text of ${book} Chapter ${chapter} in the ${version.toUpperCase()} translation.
+          Format the output as a JSON array of objects with "number" (integer or string) and "text" (string) keys under a "verses" property.
+          Return ONLY strictly valid JSON. Do not include any markdown formatting, code blocks or commentary.
+          Example: {"verses": [{"number": 1, "text": "In the beginning..."}]}
         `;
 
-        const completion = await openai.chat.completions.create({
-          model: "gpt-4o-mini", // Using mini to save quota/costs
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are a Bible scholar. Return exact scripture text in JSON format.",
-            },
-            { role: "user", content: prompt },
-          ],
-          response_format: { type: "json_object" },
+        const model = genAI.getGenerativeModel({
+          model: "models/gemini-2.5-flash",
         });
+        const result = await model.generateContent(prompt);
+        const content = result.response.text();
 
-        const content = completion.choices[0].message.content;
-        const data = JSON.parse(content || "{}");
+        const cleanContent = content.replace(/```json|```/g, "").trim();
+        const data = JSON.parse(cleanContent || "{}");
         const verses = data.verses || data;
 
         if (Array.isArray(verses) && verses.length > 0) {
           return NextResponse.json({ verses });
         }
-      } catch (openAiError: any) {
-        console.error(
-          "OpenAI Fallback Error (likely quota):",
-          openAiError.message,
-        );
+      } catch (geminiError: any) {
+        console.error("Gemini Fallback Error:", geminiError.message);
         // Do not throw here, proceed to the final safety fallback
       }
     }
